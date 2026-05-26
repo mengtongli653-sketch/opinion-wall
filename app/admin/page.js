@@ -8,6 +8,7 @@ import { readLocaleFromCookies, makeT } from '@/lib/i18n';
 import BlockedWordsManager from '@/app/_components/BlockedWordsManager';
 import AdminPostControls from '@/app/_components/AdminPostControls';
 import ReportsPanel from '@/app/_components/ReportsPanel';
+import ExportButton from '@/app/_components/ExportButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,8 +39,13 @@ export default function AdminHome() {
   return (
     <>
       <div className="card">
-        <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('admin.title')}</div>
-        <div className="muted" style={{ fontSize: 13, marginBottom: 8 }}>{t('admin.welcome')}</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('admin.title')}</div>
+            <div className="muted" style={{ fontSize: 13, marginBottom: 8 }}>{t('admin.welcome')}</div>
+          </div>
+          <ExportButton />
+        </div>
         <div className="row" style={{ gap: 0, borderTop: '1px solid var(--border)', marginTop: 6 }}>
           <Stat label={t('admin.stat.posts')} value={stats.posts} />
           <div style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch' }} />
