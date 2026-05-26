@@ -72,6 +72,16 @@ lib/
   moderation.js    auto-hide policy
 ```
 
+## Seed default blocked words
+
+The repo ships with a curated school-friendly blocked-word list (~77 entries covering profanity, slurs, school-violence threats, NSFW, illegal activity, and spam patterns). Run once after first install:
+
+```bash
+npm run seed:words
+```
+
+The script is idempotent (skips existing entries). Restart the dev/prod server afterwards so the in-memory cache reloads. Tweak the list in `scripts/seed-blocked-words.js`.
+
 ## Configuration
 
 | Env var | Default | Purpose |
