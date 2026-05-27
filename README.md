@@ -6,6 +6,19 @@ CWA Opinion Wall(意见墙)是一个轻量级匿名发言网站,支持发帖、�
 
 ---
 
+## Project context — IB DP CAS / 项目背景 — IB DP CAS
+
+> **Author / 作者:** Peter Li 李孟桐
+> **Programme / 项目:** IB Diploma Programme, DP1
+> **School / 学校:** CWA 世华学校
+> **CAS strands / CAS 维度:** **Creativity** · **Service**
+
+This is an IB Diploma Programme **CAS (Creativity, Activity, Service)** project — a student-built web platform offered to the school community as a free, anonymous space for sharing opinions, asking for help, venting, or celebrating small wins. It combines a **Creativity** strand (designing and engineering the platform from scratch with Next.js 14, React Server Components, and a custom moderation system) with a **Service** strand (deploying and maintaining it for fellow students, taking responsibility for content safety and accessibility).
+
+本项目是 IB Diploma Programme **CAS(Creativity 创造、Activity 活动、Service 服务)**框架下的学生作品 —— 一个面向校园社区的匿名发言平台,免费供同学使用,可用于交流、求助、吐槽或分享好消息。它同时覆盖 **Creativity 创造**(从零设计与实现整套 Web 平台:Next.js 14、React Server Components、自研审核机制)与 **Service 服务**(对外部署、为同学持续维护、对内容安全与可用性负责)两个 CAS 维度。
+
+---
+
 ## Features / 功能
 
 - **Anonymous by default** — every visitor gets a stable session tag like `匿名#A1B2C3`; no signup, no email, no tracking.
@@ -172,6 +185,61 @@ Moderation thresholds / 审核阈值 (in `lib/moderation.js`):
 Admins can export posts and reports as `.xlsx` from the admin dashboard. The export uses [`exceljs`](https://www.npmjs.com/package/exceljs) — no external service involved, the file is generated and downloaded locally.
 
 管理员可在后台将帖子与举报导出为 `.xlsx` 文件。使用 [`exceljs`](https://www.npmjs.com/package/exceljs) 在本地生成下载,不经过任何外部服务。
+
+---
+
+## CAS Learning Outcomes / CAS 学习目标
+
+This project is mapped against the following IB CAS Learning Outcomes:
+
+本项目对应以下 IB CAS 学习目标:
+
+### LO2 — Undertake new challenges and develop new skills / 承担新挑战、习得新技能
+
+- **EN:** Built the platform without prior production experience in Next.js 14's App Router, React Server Components, HMAC-based session auth, or file-backed persistence patterns. Each was learned and applied iteratively across the project.
+- **中文:** 项目开始前没有 Next.js 14 App Router、React 服务端组件、基于 HMAC 的会话认证、文件存储模式的实战经验,这些都是在做项目过程中边学边用、不断迭代落地的。
+
+### LO3 — Initiate and plan a CAS experience / 自主发起并规划 CAS 体验
+
+- **EN:** Scoped the project independently — from identifying the need (a low-friction place for students to express opinions without exposing identity), to choosing the stack, designing the moderation model, and shipping a deployable artifact.
+- **中文:** 项目从问题识别(同学们需要一个无身份门槛的表达空间)到技术选型、审核机制设计、最终可部署交付,全流程由我独立规划。
+
+### LO4 — Show commitment to and perseverance in CAS experiences / 展现承诺与坚持
+
+- **EN:** Sustained development across the planning, build, seeding, admin tooling, Excel export, and bilingual content iterations — visible in the project's commit history.
+- **中文:** 项目持续推进涵盖规划、开发、屏蔽词种子、管理后台、Excel 导出、双语内容迭代等多个阶段,提交历史可作佐证。
+
+### LO7 — Recognise and consider the ethics of choices and actions / 认识并考量行为伦理
+
+- **EN:** Anonymous platforms carry real ethical weight — they can empower honest voices, but also enable harassment. Decisions throughout the project (cookie-based pseudonymity instead of true anonymity, requiring a reason for every report, ratio-based auto-hide rather than first-report removal, a school-appropriate blocked-word list, and an admin audit trail) reflect deliberate tradeoffs between free expression and community safety.
+- **中文:** 匿名平台天然带有伦理重量 —— 它既能让真实声音被听见,也可能被滥用为骚扰工具。项目中的多项设计决策(用 cookie 化名而非完全匿名、举报必须填理由、按"举报/点赞"比例触发自动隐藏而非首报即删、面向校园场景的屏蔽词表、管理员操作留痕)都是在表达自由与社区安全之间反复权衡的结果。
+
+---
+
+## Reflection / 反思
+
+> _The author plans to fill this section in after the next CAS supervisor check-in._
+> _作者将在下一次 CAS 导师沟通后补充此部分。_
+
+### Motivation / 动机
+
+_TODO — why this project, what problem it addresses for the school community._
+_待补充 —— 为什么做这个项目,它为校园社区解决了什么问题。_
+
+### Challenges / 挑战
+
+_TODO — technical and non-technical challenges encountered (e.g. learning Next.js Server Components, deciding the moderation threshold, balancing anonymity with safety)._
+_待补充 —— 遇到的技术与非技术挑战(例如学习 Next.js 服务端组件、确定审核阈值、在匿名与安全之间取舍)。_
+
+### Skills developed / 习得的技能
+
+_TODO — concrete skills gained, both hard (Next.js, HMAC auth, system design) and soft (scope management, ethics-aware design)._
+_待补充 —— 实际习得的能力,包括硬技能(Next.js、HMAC 认证、系统设计)与软技能(范围管理、带伦理意识的设计)。_
+
+### Outcomes & takeaways / 成果与体会
+
+_TODO — what was shipped, who it serves, what was learned about responsibility, and what comes next._
+_待补充 —— 最终交付了什么、服务了谁、对"责任"有什么新的理解、下一步打算做什么。_
 
 ---
 
