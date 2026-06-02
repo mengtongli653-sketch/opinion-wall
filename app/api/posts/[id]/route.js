@@ -12,14 +12,14 @@ export async function GET(_req, { params }) {
 }
 
 export async function DELETE(_req, { params }) {
-  if (!isAdmin()) return NextResponse.json({ error: '需要管理员权限' }, { status: 403 });
+  if (!isAdmin()) return NextResponse.json({ error: '需要编辑权限' }, { status: 403 });
   const id = Number(params.id);
   deletePost(id);
   return NextResponse.json({ ok: true });
 }
 
 export async function PATCH(req, { params }) {
-  if (!isAdmin()) return NextResponse.json({ error: '需要管理员权限' }, { status: 403 });
+  if (!isAdmin()) return NextResponse.json({ error: '需要编辑权限' }, { status: 403 });
   const id = Number(params.id);
   const body = await req.json().catch(() => ({}));
   const updated = updatePost(id, body);

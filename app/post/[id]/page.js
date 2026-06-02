@@ -78,8 +78,12 @@ export default function PostPage({ params }) {
             <>
               <div className="letter-body">{c.content}</div>
               <div className="letter-sig">
-                {t('post.byline.prefix')}
-                <span className="author">{c.author_tag}</span>
+                {t('post.byline.prefix')}{' '}
+                {c.display_name ? (
+                  <span className="author named">{c.display_name}</span>
+                ) : (
+                  <span className="author">{c.author_tag}</span>
+                )}
                 <span style={{ margin: '0 6px' }}>·</span>
                 <span title={formatFull(c.created_at)}>{formatRelative(c.created_at, t)}</span>
                 {admin && <span style={{ marginLeft: 8 }}><AdminCommentDelete id={c.id} /></span>}
@@ -123,7 +127,12 @@ function ArticleDetail({ t, post, tag, liked, reported }) {
 
       <div className="byline">
         <span className="by">
-          {t('post.byline.prefix')} <span className="author">{post.author_tag}</span>
+          {t('post.byline.prefix')}{' '}
+          {post.display_name ? (
+            <span className="author named">{post.display_name}</span>
+          ) : (
+            <span className="author">{post.author_tag}</span>
+          )}
         </span>
         <span className="sep">·</span>
         <span title={formatFull(post.created_at)}>{formatRelative(post.created_at, t)}</span>

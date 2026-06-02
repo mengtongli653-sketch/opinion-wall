@@ -90,8 +90,9 @@ function ArticleCard({ t, post, tag, admin, liked, reported, visibility, lead })
 
   return (
     <article className={classes.join(' ')}>
-      {(post.pinned || post.featured) && (
+      {(lead || post.pinned || post.featured) && (
         <div className="badges">
+          {lead ? <span className="badge latest">{t('post.badge.latest')}</span> : null}
           {post.pinned ? <span className="badge pin">{t('post.badge.pinned')}</span> : null}
           {post.featured ? <span className="badge feat">{t('post.badge.featured')}</span> : null}
         </div>
@@ -135,7 +136,12 @@ function ArticleBody({ t, post, tag, liked, reported }) {
 
       <div className="byline">
         <span className="by">
-          {t('post.byline.prefix')} <span className="author">{post.author_tag}</span>
+          {t('post.byline.prefix')}{' '}
+          {post.display_name ? (
+            <span className="author named">{post.display_name}</span>
+          ) : (
+            <span className="author">{post.author_tag}</span>
+          )}
         </span>
         <span className="sep">·</span>
         <span title={formatFull(post.created_at)}>{formatRelative(post.created_at, t)}</span>
