@@ -27,81 +27,130 @@ export default function Home({ searchParams }) {
   const likedSet = anonId ? likedIds(anonId, 'post', ids) : new Set();
   const reportedSet = anonId ? reportedIds(anonId, 'post', ids) : new Set();
 
+  const leadPost = posts[0] || null;
+  const restPosts = posts.slice(1);
+
+  const renderArticle = (p, { lead = false } = {}) => {
+    const visibility = effectiveVisibility(p, { forAdmin: admin });
+    const tag = p.tag ? getTag(p.tag) : null;
+    const liked = likedSet.has(p.id);
+    const reported = reportedSet.has(p.id);
+    return (
+      <ArticleCard
+        key={p.id}
+        t={t}
+        post={p}
+        tag={tag}
+        admin={admin}
+        liked={liked}
+        reported={reported}
+        visibility={visibility}
+        lead={lead}
+      />
+    );
+  };
+
   return (
     <>
       <NewPostForm />
       <TagFilter active={activeTag} />
-      <div>
-        {posts.length === 0 && (
-          <div className="card">
-            <div className="empty">
-              <span className="emoji">💬</span>
-              <div className="title">{t('home.empty.title')}</div>
-              <div className="sub">{t('home.empty.sub')}</div>
-            </div>
+
+      {posts.length === 0 && (
+        <div className="card">
+          <div className="empty">
+            <span className="emoji">📰</span>
+            <div className="title">{t('home.empty.title')}</div>
+            <div className="sub">{t('home.empty.sub')}</div>
           </div>
-        )}
-        {posts.map((p) => {
-          const visibility = effectiveVisibility(p, { forAdmin: admin });
-          const tag = p.tag ? getTag(p.tag) : null;
-          const liked = likedSet.has(p.id);
-          const reported = reportedSet.has(p.id);
-          return (
-            <article key={p.id} className={`card ${p.pinned ? 'pinned' : ''} ${p.featured ? 'featured' : ''}`}>
-              {(p.pinned || p.featured) && (
-                <div className="badges">
-                  {p.pinned ? <span className="badge pin">{t('post.badge.pinned')}</span> : null}
-                  {p.featured ? <span className="badge feat">{t('post.badge.featured')}</span> : null}
-                </div>
-              )}
+        </div>
+      )}
 
-              {visibility === 'hidden' ? (
-                <HiddenContent>
-                  <PostBody t={t} p={p} tag={tag} admin={admin} liked={liked} reported={reported} />
-                </HiddenContent>
-              ) : (
-                <PostBody t={t} p={p} tag={tag} admin={admin} liked={liked} reported={reported} />
-              )}
+      {leadPost && (
+        <>
+          <div className="index-heading">{t('home.section.lead')}</div>
+          {renderArticle(leadPost, { lead: true })}
+        </>
+      )}
 
-              {admin && (
-                <div className="card-menu">
-                  <AdminPostControls post={{ id: p.id, pinned: !!p.pinned, featured: !!p.featured, visibility: p.visibility }} />
-                </div>
-              )}
-            </article>
-          );
-        })}
-      </div>
+      {restPosts.length > 0 && (
+        <>
+          <div className="index-heading">{t('home.section.latest')}</div>
+          {restPosts.map((p) => renderArticle(p))}
+        </>
+      )}
     </>
   );
 }
 
-function PostBody({ t, p, tag, admin, liked, reported }) {
+function ArticleCard({ t, post, tag, admin, liked, reported, visibility, lead }) {
+  const classes = ['card', 'article'];
+  if (lead) classes.push('lead');
+  if (post.pinned) classes.push('pinned');
+  if (post.featured) classes.push('featured');
+
+  return (
+    <article className={classes.join(' ')}>
+      {(post.pinned || post.featured) && (
+        <div className="badges">
+          {post.pinned ? <span className="badge pin">{t('post.badge.pinned')}</span> : null}
+          {post.featured ? <span className="badge feat">{t('post.badge.featured')}</span> : null}
+        </div>
+      )}
+
+      {visibility === 'hidden' ? (
+        <HiddenContent>
+          <ArticleBody t={t} post={post} tag={tag} liked={liked} reported={reported} />
+        </HiddenContent>
+      ) : (
+        <ArticleBody t={t} post={post} tag={tag} liked={liked} reported={reported} />
+      )}
+
+      {admin && (
+        <div className="card-menu">
+          <AdminPostControls
+            post={{ id: post.id, pinned: !!post.pinned, featured: !!post.featured, visibility: post.visibility }}
+          />
+        </div>
+      )}
+    </article>
+  );
+}
+
+function ArticleBody({ t, post, tag, liked, reported }) {
   return (
     <>
-      <h3 className="post-title">
-        <a href={`/post/${p.id}`}>{p.title}</a>
+      {tag && (
+        <div className="section-label">
+          <a href={`/?tag=${tag.id}`}>{t(tag.i18nKey)}</a>
+        </div>
+      )}
+
+      <h3 className="article-title">
+        <a href={`/post/${post.id}`}>{post.title}</a>
       </h3>
-      <div className="post-content dim">
-        {p.content.length > 200 ? p.content.slice(0, 200) + '…' : p.content}
+
+      <div className="article-excerpt">
+        {post.content.length > 220 ? post.content.slice(0, 220) + '…' : post.content}
       </div>
-      <div className="post-meta">
-        {tag && (
-          <a href={`/?tag=${tag.id}`} className="tag-pill" title={t(tag.i18nKey)}>
-            <span aria-hidden>{tag.emoji}</span>
-            <span>{t(tag.i18nKey)}</span>
-          </a>
-        )}
-        <span className="tag">{p.author_tag}</span>
-        <span title={formatFull(p.created_at)}>{formatRelative(p.created_at, t)}</span>
-        <a href={`/post/${p.id}#comments`}>{t('post.comments.label')} {p.comment_count}</a>
+
+      <div className="byline">
+        <span className="by">
+          {t('post.byline.prefix')} <span className="author">{post.author_tag}</span>
+        </span>
+        <span className="sep">·</span>
+        <span title={formatFull(post.created_at)}>{formatRelative(post.created_at, t)}</span>
+        <span className="sep">·</span>
+        <a href={`/post/${post.id}#comments`}>
+          {t('post.comments.label')} {post.comment_count}
+        </a>
       </div>
-      <div style={{ marginTop: 10 }}>
+
+      <div style={{ marginTop: 14 }}>
         <LikeReportBar
           target="post"
-          id={p.id}
-          likes={p.likes || 0}
-          reports={p.reports || 0}
+          id={post.id}
+          likes={post.likes || 0}
+          reports={post.reports || 0}
           liked={!!liked}
           reported={!!reported}
         />

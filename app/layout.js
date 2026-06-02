@@ -11,9 +11,17 @@ export function generateMetadata() {
   const locale = readLocaleFromCookies(cookies());
   const dict = getDict(locale);
   return {
-    title: BRAND,
+    title: dict['site.title'] || BRAND,
     description: dict['site.meta.description'],
   };
+}
+
+function formatIssueDate(locale) {
+  const now = new Date();
+  const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+  return locale === 'zh'
+    ? now.toLocaleDateString('zh-CN', opts)
+    : now.toLocaleDateString('en-US', opts);
 }
 
 export default function RootLayout({ children }) {
@@ -23,42 +31,53 @@ export default function RootLayout({ children }) {
   const locale = readLocaleFromCookies(cookieStore);
   const t = makeT(locale);
 
+  const brand = t('site.brand');
+  const tagline = t('site.tagline');
+  const vol = t('site.masthead.vol');
+  const no = t('site.masthead.no');
+  const subline = t('site.masthead.subline');
+  const dateline = formatIssueDate(locale);
+
   return (
     <html lang={locale === 'en' ? 'en' : 'zh-CN'}>
       <body>
         <LangProvider locale={locale}>
           <ToastProvider>
-            <div className="header">
-              <h1>
-                <a href="/">
-                  {BRAND}
-                  {locale === 'zh' && (
-                    <span style={{
-                      marginLeft: 8,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      color: 'var(--text-muted)',
-                      letterSpacing: 0,
-                    }}>
-                      {t('site.tagline')}
-                    </span>
-                  )}
-                </a>
+            <header className="masthead" role="banner">
+              <h1 className="masthead-brand">
+                <a href="/">{brand}</a>
               </h1>
-              <div className="nav">
-                <a href="/">{t('nav.home')}</a>
-                {admin ? (
-                  <>
-                    <a href="/admin">{t('nav.admin')}</a>
-                    <LogoutLink />
-                  </>
-                ) : (
-                  <a href="/admin/login">{t('nav.adminLogin')}</a>
-                )}
-                <LangSwitch />
+              <div className="masthead-tagline">{tagline}</div>
+              <div className="masthead-issue">
+                <span>{vol}</span>
+                <span>{no}</span>
+                <span>{dateline}</span>
               </div>
-            </div>
+              <div className="masthead-subline">{subline}</div>
+            </header>
+
+            <nav className="subnav" aria-label="primary">
+              <a href="/">{t('nav.home')}</a>
+              {admin ? (
+                <>
+                  <a href="/admin">{t('nav.admin')}</a>
+                  <LogoutLink />
+                </>
+              ) : (
+                <a href="/admin/login">{t('nav.adminLogin')}</a>
+              )}
+              <LangSwitch />
+            </nav>
+
             <div className="container">{children}</div>
+
+            <footer className="colophon">
+              <div>
+                <span className="name">{brand}</span>
+                {brand !== BRAND && <span className="dim"> · {BRAND}</span>}
+              </div>
+              <div className="dim">{subline}</div>
+            </footer>
           </ToastProvider>
         </LangProvider>
       </body>

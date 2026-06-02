@@ -37,50 +37,54 @@ export default function PostPage({ params }) {
 
   return (
     <>
-      <div style={{ marginBottom: 10 }}>
-        <a href="/" className="muted">{t('home.back')}</a>
-      </div>
+      <a href="/" className="back-link">{t('home.back')}</a>
 
-      <article className={`card ${post.pinned ? 'pinned' : ''} ${post.featured ? 'featured' : ''}`}>
+      <article className="article-detail">
         {(post.pinned || post.featured) && (
           <div className="badges">
             {post.pinned ? <span className="badge pin">{t('post.badge.pinned')}</span> : null}
             {post.featured ? <span className="badge feat">{t('post.badge.featured')}</span> : null}
           </div>
         )}
+
         {postVis === 'hidden' ? (
           <HiddenContent>
-            <PostDetail t={t} post={post} tag={tag} liked={postLiked} reported={postReported} />
+            <ArticleDetail t={t} post={post} tag={tag} liked={postLiked} reported={postReported} />
           </HiddenContent>
         ) : (
-          <PostDetail t={t} post={post} tag={tag} liked={postLiked} reported={postReported} />
+          <ArticleDetail t={t} post={post} tag={tag} liked={postLiked} reported={postReported} />
         )}
+
         {admin && (
           <div className="card-menu">
-            <AdminPostControls post={{ id: post.id, pinned: !!post.pinned, featured: !!post.featured, visibility: post.visibility }} />
+            <AdminPostControls
+              post={{ id: post.id, pinned: !!post.pinned, featured: !!post.featured, visibility: post.visibility }}
+            />
           </div>
         )}
       </article>
 
-      <div className="card" id="comments">
-        <div style={{ fontWeight: 600, marginBottom: 8 }}>{t('comment.heading')} ({comments.length})</div>
-        {comments.length === 0 && (
-          <div className="empty" style={{ padding: '24px 12px' }}>
-            <span className="emoji">🌱</span>
-            <div className="sub">{t('comment.empty')}</div>
-          </div>
-        )}
+      <section className="letters-section" id="comments">
+        <h2 className="letters-heading">{t('comment.heading')}</h2>
+        <div className="letters-sub">
+          {comments.length > 0
+            ? `${comments.length} ${t('comment.heading')}`
+            : t('comment.empty')}
+        </div>
+
         {comments.map((c) => {
           const vis = effectiveVisibility(c, { forAdmin: admin });
           const body = (
             <>
-              <div className="post-meta" style={{ marginBottom: 6, marginTop: 0 }}>
-                <span className="tag">{c.author_tag}</span>
+              <div className="letter-body">{c.content}</div>
+              <div className="letter-sig">
+                {t('post.byline.prefix')}
+                <span className="author">{c.author_tag}</span>
+                <span style={{ margin: '0 6px' }}>·</span>
                 <span title={formatFull(c.created_at)}>{formatRelative(c.created_at, t)}</span>
-                {admin && <AdminCommentDelete id={c.id} />}
+                {admin && <span style={{ marginLeft: 8 }}><AdminCommentDelete id={c.id} /></span>}
               </div>
-              <div className="post-content">{c.content}</div>
-              <div style={{ marginTop: 8 }}>
+              <div className="letter-actions">
                 <LikeReportBar
                   target="comment"
                   id={c.id}
@@ -94,34 +98,40 @@ export default function PostPage({ params }) {
             </>
           );
           return (
-            <div key={c.id} className="comment">
+            <div key={c.id} className="letter">
               {vis === 'hidden' ? <HiddenContent>{body}</HiddenContent> : body}
             </div>
           );
         })}
-      </div>
+      </section>
 
       <CommentForm postId={post.id} />
     </>
   );
 }
 
-function PostDetail({ t, post, tag, liked, reported }) {
+function ArticleDetail({ t, post, tag, liked, reported }) {
   return (
     <>
-      <h2 className="post-title" style={{ fontSize: 20 }}>{post.title}</h2>
-      <div className="post-meta" style={{ marginTop: 4, marginBottom: 14 }}>
-        {tag && (
-          <a href={`/?tag=${tag.id}`} className="tag-pill" title={t(tag.i18nKey)}>
-            <span aria-hidden>{tag.emoji}</span>
-            <span>{t(tag.i18nKey)}</span>
-          </a>
-        )}
-        <span className="tag">{post.author_tag}</span>
+      {tag && (
+        <div className="section-label">
+          <a href={`/?tag=${tag.id}`}>{t(tag.i18nKey)}</a>
+        </div>
+      )}
+
+      <h1 className="article-title">{post.title}</h1>
+
+      <div className="byline">
+        <span className="by">
+          {t('post.byline.prefix')} <span className="author">{post.author_tag}</span>
+        </span>
+        <span className="sep">·</span>
         <span title={formatFull(post.created_at)}>{formatRelative(post.created_at, t)}</span>
       </div>
-      <div className="post-content">{post.content}</div>
-      <div style={{ marginTop: 14 }}>
+
+      <div className="article-body">{post.content}</div>
+
+      <div className="article-actions">
         <LikeReportBar
           target="post"
           id={post.id}
