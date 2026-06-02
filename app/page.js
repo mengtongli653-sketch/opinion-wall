@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
-import { listPosts, likedIds, reportedIds } from '@/lib/db';
+import { listPosts, likedIds, reportedIds, listSections, activeSectionIds, getSection } from '@/lib/db';
 import { verifyAdminToken, COOKIES, getOrCreateAnonId } from '@/lib/auth';
 import { formatFull, formatRelative } from '@/lib/time';
 import { readLocaleFromCookies, makeT } from '@/lib/i18n';
-import { getTag, normalizeTag } from '@/lib/tags';
+import { normalizeTag } from '@/lib/tags';
 import { effectiveVisibility } from '@/lib/moderation';
 import NewPostForm from './_components/NewPostForm';
 import AdminPostControls from './_components/AdminPostControls';
@@ -21,6 +21,11 @@ export default function Home({ searchParams }) {
   const activeTag = normalizeTag(searchParams?.tag);
   const posts = listPosts({ tag: activeTag });
 
+  // Only render the section filter for sections that actually have
+  // published articles — keeps the bar from showing dead tabs.
+  const activeIds = activeSectionIds();
+  const visibleSections = listSections().filter((s) => activeIds.has(s.id));
+
   const admin = verifyAdminToken(cookieStore.get(COOKIES.SESSION_COOKIE)?.value);
   const anonId = cookieStore.get(COOKIES.ANON_COOKIE)?.value || null;
   const ids = posts.map((p) => p.id);
@@ -32,7 +37,7 @@ export default function Home({ searchParams }) {
 
   const renderArticle = (p, { lead = false } = {}) => {
     const visibility = effectiveVisibility(p, { forAdmin: admin });
-    const tag = p.tag ? getTag(p.tag) : null;
+    const section = p.tag ? getSection(p.tag) : null;
     const liked = likedSet.has(p.id);
     const reported = reportedSet.has(p.id);
     return (
@@ -40,7 +45,7 @@ export default function Home({ searchParams }) {
         key={p.id}
         t={t}
         post={p}
-        tag={tag}
+        section={section}
         admin={admin}
         liked={liked}
         reported={reported}
@@ -53,7 +58,7 @@ export default function Home({ searchParams }) {
   return (
     <>
       <NewPostForm />
-      <TagFilter active={activeTag} />
+      <TagFilter active={activeTag} sections={visibleSections} />
 
       {posts.length === 0 && (
         <div className="card">
@@ -81,7 +86,7 @@ export default function Home({ searchParams }) {
   );
 }
 
-function ArticleCard({ t, post, tag, admin, liked, reported, visibility, lead }) {
+function ArticleCard({ t, post, section, admin, liked, reported, visibility, lead }) {
   const classes = ['card', 'article'];
   if (lead) classes.push('lead');
   if (post.pinned) classes.push('pinned');
@@ -99,10 +104,10 @@ function ArticleCard({ t, post, tag, admin, liked, reported, visibility, lead })
 
       {visibility === 'hidden' ? (
         <HiddenContent>
-          <ArticleBody t={t} post={post} tag={tag} liked={liked} reported={reported} />
+          <ArticleBody t={t} post={post} section={section} liked={liked} reported={reported} />
         </HiddenContent>
       ) : (
-        <ArticleBody t={t} post={post} tag={tag} liked={liked} reported={reported} />
+        <ArticleBody t={t} post={post} section={section} liked={liked} reported={reported} />
       )}
 
       {admin && (
@@ -116,12 +121,12 @@ function ArticleCard({ t, post, tag, admin, liked, reported, visibility, lead })
   );
 }
 
-function ArticleBody({ t, post, tag, liked, reported }) {
+function ArticleBody({ t, post, section, liked, reported }) {
   return (
     <>
-      {tag && (
+      {section && (
         <div className="section-label">
-          <a href={`/?tag=${tag.id}`}>{t(tag.i18nKey)}</a>
+          <a href={`/?tag=${section.id}`}>{section.name}</a>
         </div>
       )}
 

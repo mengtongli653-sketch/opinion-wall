@@ -1,22 +1,25 @@
 'use client';
 
-import { TAGS } from '@/lib/tags';
 import { useT } from './LangProvider';
 
-export default function TagFilter({ active }) {
+// Server passes in the list of sections that are actually in use (≥1
+// published article). If empty, the filter bar disappears entirely so
+// the front page doesn't show a lonely "All" tab.
+export default function TagFilter({ active, sections = [] }) {
   const t = useT();
+  if (sections.length === 0) return null;
   return (
     <nav className="section-nav" aria-label="sections">
       <a href="/" className={!active ? 'active' : ''}>
         {t('home.tag.all')}
       </a>
-      {TAGS.map((tag) => (
+      {sections.map((sec) => (
         <a
-          key={tag.id}
-          href={`/?tag=${tag.id}`}
-          className={active === tag.id ? 'active' : ''}
+          key={sec.id}
+          href={`/?tag=${sec.id}`}
+          className={active === sec.id ? 'active' : ''}
         >
-          {t(tag.i18nKey)}
+          {sec.name}
         </a>
       ))}
     </nav>

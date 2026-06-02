@@ -20,7 +20,7 @@ export default function NewPostForm({ defaultOpen = false, kind = 'article' }) {
   const [open, setOpen] = useState(defaultOpen);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [tag, setTag] = useState(null);
+  const [tagName, setTagName] = useState('');
   const [named, setNamed] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [err, setErr] = useState('');
@@ -47,7 +47,7 @@ export default function NewPostForm({ defaultOpen = false, kind = 'article' }) {
         title,
         content,
         // Discussions ignore section tagging — they're a single open feed.
-        tag: isDiscussion ? null : tag,
+        tag_name: isDiscussion ? '' : tagName,
         kind,
         display_name: named ? displayName.trim() : undefined,
       }),
@@ -60,7 +60,7 @@ export default function NewPostForm({ defaultOpen = false, kind = 'article' }) {
     }
     setTitle('');
     setContent('');
-    setTag(null);
+    setTagName('');
     setNamed(false);
     setDisplayName('');
     setOpen(false);
@@ -123,7 +123,7 @@ export default function NewPostForm({ defaultOpen = false, kind = 'article' }) {
       {!isDiscussion && (
         <>
           <div style={{ height: 12 }} />
-          <TagPicker value={tag} onChange={setTag} />
+          <TagPicker value={tagName} onChange={setTagName} />
         </>
       )}
       <div style={{ height: 14 }} />

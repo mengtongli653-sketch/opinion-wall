@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useT } from './LangProvider';
 import { useToast } from './Toast';
-import { getTag } from '@/lib/tags';
 
 export default function SubmissionsPanel({ initial }) {
   const router = useRouter();
@@ -68,8 +67,10 @@ export default function SubmissionsPanel({ initial }) {
 
       {items.map((p) => {
         const busy = busyId === p.id;
-        const tagDef = p.tag ? getTag(p.tag) : null;
-        const sectionLabel = tagDef ? t(tagDef.i18nKey) : null;
+        // The server-rendered submissions list now carries the resolved
+        // section name on the row (p.section_name) so we don't need a
+        // client-side lookup against the sections collection.
+        const sectionLabel = p.section_name || null;
         const isNamed = !!p.display_name;
         return (
           <div key={p.id} className="submission">

@@ -10,6 +10,7 @@ import {
   countPendingReports,
   listPendingPosts,
   countPendingPosts,
+  getSection,
 } from '@/lib/db';
 import { formatFull, formatRelative } from '@/lib/time';
 import { readLocaleFromCookies, makeT } from '@/lib/i18n';
@@ -45,7 +46,12 @@ export default function AdminHome() {
   const locale = readLocaleFromCookies(cookies());
   const t = makeT(locale);
   const posts = recentPosts(50);
-  const pending = listPendingPosts();
+  // Server-resolve each pending submission's section name so the client
+  // panel doesn't have to fetch /api/sections itself.
+  const pending = listPendingPosts().map((p) => ({
+    ...p,
+    section_name: p.tag ? (getSection(p.tag)?.name ?? null) : null,
+  }));
   const words = getBlockedWords();
   const reports = listReports({ resolved: false });
   const stats = {

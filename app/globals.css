@@ -180,20 +180,6 @@ a:hover { text-decoration: underline; }
 .subnav a:hover { color: var(--primary); text-decoration: none; }
 .subnav a.active { color: var(--primary); }
 
-/* Casual side-channel: 自由讨论 is shown as a small pill so it reads as
-   secondary to the formal Front Page. */
-.subnav .subnav-pill {
-  background: rgba(14, 165, 233, 0.14);
-  color: var(--accent);
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-}
-.subnav .subnav-pill:hover {
-  background: rgba(14, 165, 233, 0.24);
-  color: var(--accent);
-}
 
 /* ========= Layout ========= */
 .container {

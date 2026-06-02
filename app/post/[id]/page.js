@@ -1,10 +1,9 @@
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getPost, listComments, likedIds, reportedIds } from '@/lib/db';
+import { getPost, listComments, likedIds, reportedIds, getSection } from '@/lib/db';
 import { verifyAdminToken, COOKIES } from '@/lib/auth';
 import { formatFull, formatRelative } from '@/lib/time';
 import { readLocaleFromCookies, makeT } from '@/lib/i18n';
-import { getTag } from '@/lib/tags';
 import { effectiveVisibility } from '@/lib/moderation';
 import CommentForm from '@/app/_components/CommentForm';
 import AdminPostControls from '@/app/_components/AdminPostControls';
@@ -33,7 +32,7 @@ export default function PostPage({ params }) {
   const commentReported = anonId ? reportedIds(anonId, 'comment', commentIds) : new Set();
 
   const postVis = effectiveVisibility(post, { forAdmin: admin });
-  const tag = post.tag ? getTag(post.tag) : null;
+  const section = post.tag ? getSection(post.tag) : null;
 
   return (
     <>
@@ -60,10 +59,10 @@ export default function PostPage({ params }) {
 
         {postVis === 'hidden' ? (
           <HiddenContent>
-            <ArticleDetail t={t} post={post} tag={tag} liked={postLiked} reported={postReported} />
+            <ArticleDetail t={t} post={post} section={section}liked={postLiked} reported={postReported} />
           </HiddenContent>
         ) : (
-          <ArticleDetail t={t} post={post} tag={tag} liked={postLiked} reported={postReported} />
+          <ArticleDetail t={t} post={post} section={section}liked={postLiked} reported={postReported} />
         )}
 
         {admin && (
@@ -125,12 +124,12 @@ export default function PostPage({ params }) {
   );
 }
 
-function ArticleDetail({ t, post, tag, liked, reported }) {
+function ArticleDetail({ t, post, section, liked, reported }) {
   return (
     <>
-      {tag && (
+      {section && (
         <div className="section-label">
-          <a href={`/?tag=${tag.id}`}>{t(tag.i18nKey)}</a>
+          <a href={`/?tag=${section.id}`}>{section.name}</a>
         </div>
       )}
 

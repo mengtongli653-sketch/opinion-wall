@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { listPosts, createPost } from '@/lib/db';
+import { listPosts, createPost, getOrCreateSection } from '@/lib/db';
 import { getOrCreateAnonId, isAdmin } from '@/lib/auth';
 import { containsBlockedWord } from '@/lib/filter';
-import { normalizeTag } from '@/lib/tags';
 
 export const dynamic = 'force-dynamic';
 
 const MAX_DISPLAY_NAME = 30;
+const MAX_SECTION_NAME = 20;
 
 function normalizeDisplayName(raw) {
   const v = String(raw || '').trim();
@@ -22,7 +22,7 @@ export async function POST(request) {
   const body = await request.json().catch(() => ({}));
   const title = String(body.title || '').trim();
   const content = String(body.content || '').trim();
-  const tag = normalizeTag(body.tag);
+  const tagName = String(body.tag_name || '').trim().replace(/\s+/g, ' ').slice(0, MAX_SECTION_NAME);
   const display_name = normalizeDisplayName(body.display_name);
   const kind = body.kind === 'discussion' ? 'discussion' : 'article';
 
@@ -36,29 +36,32 @@ export async function POST(request) {
     return NextResponse.json({ error: '内容不超过 5000 字' }, { status: 400 });
   }
 
-  const hit = containsBlockedWord([title, content, display_name || ''].join('\n'));
+  // Block-word filter covers headline + body + display name + new section
+  // name so users can't sneak through by stashing slurs in a section title.
+  const hit = containsBlockedWord([title, content, display_name || '', tagName].join('\n'));
   if (hit) {
     return NextResponse.json({ error: `内容包含屏蔽词：${hit}` }, { status: 400 });
   }
 
+  // Find-or-create the section by name (case-insensitive). Discussions
+  // ignore sections entirely.
+  const section = kind === 'article' && tagName ? getOrCreateSection(tagName) : null;
+
   const response = NextResponse.json({ ok: true });
   const anonId = getOrCreateAnonId(response);
-  // Discussions are the free-flow track — they skip the editor queue.
-  // Articles still go pending → editor review → published, unless the
-  // submitter is already an editor.
   const status = kind === 'discussion' || isAdmin() ? 'published' : 'pending';
   const post = createPost({
     title,
     content,
     author_tag: `匿名#${anonId}`,
     display_name,
-    tag,
+    tag: section?.id || null,
     kind,
     status,
   });
 
   return NextResponse.json(
-    { ok: true, id: post.id, kind: post.kind, status: post.status },
+    { ok: true, id: post.id, kind: post.kind, status: post.status, section: section || null },
     { headers: response.headers }
   );
 }

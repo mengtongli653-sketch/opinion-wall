@@ -1,8 +1,7 @@
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getPost } from '@/lib/db';
+import { getPost, getSection } from '@/lib/db';
 import { readLocaleFromCookies, makeT } from '@/lib/i18n';
-import { getTag } from '@/lib/tags';
 import PrintTrigger, { PrintAgainButton } from '@/app/_components/PrintTrigger';
 
 export const dynamic = 'force-dynamic';
@@ -22,8 +21,8 @@ export default function PrintPostPage({ params }) {
   const locale = readLocaleFromCookies(cookies());
   const t = makeT(locale);
   const brand = t('site.brand');
-  const tag = post.tag ? getTag(post.tag) : null;
-  const sectionLabel = tag ? t(tag.i18nKey) : null;
+  const section = post.tag ? getSection(post.tag) : null;
+  const sectionLabel = section ? section.name : null;
   const date = formatPrintDate(locale, post.created_at);
   const isNamed = !!post.display_name;
   const byline = post.display_name || post.author_tag;
