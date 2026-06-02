@@ -10,7 +10,10 @@ import IdentityPicker from './IdentityPicker';
 const MAX_TITLE = 100;
 const MAX_CONTENT = 5000;
 
-export default function NewPostForm({ defaultOpen = false }) {
+// `kind` switches the form copy + workflow:
+//   - 'article'    (default): editor-reviewed submission, includes section picker
+//   - 'discussion'          : casual instant-post for the /forum feed
+export default function NewPostForm({ defaultOpen = false, kind = 'article' }) {
   const router = useRouter();
   const t = useT();
   const toast = useToast();
@@ -23,6 +26,7 @@ export default function NewPostForm({ defaultOpen = false }) {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const titleRef = useRef(null);
+  const isDiscussion = kind === 'discussion';
 
   useEffect(() => {
     if (open && titleRef.current) titleRef.current.focus();
@@ -42,7 +46,9 @@ export default function NewPostForm({ defaultOpen = false }) {
       body: JSON.stringify({
         title,
         content,
-        tag,
+        // Discussions ignore section tagging — they're a single open feed.
+        tag: isDiscussion ? null : tag,
+        kind,
         display_name: named ? displayName.trim() : undefined,
       }),
     });
@@ -58,8 +64,9 @@ export default function NewPostForm({ defaultOpen = false }) {
     setNamed(false);
     setDisplayName('');
     setOpen(false);
-    // Editors get instant publish; readers see a "pending" toast.
-    if (data.status === 'pending') {
+    if (isDiscussion) {
+      toast(t('compose.discussion.toastPublished'));
+    } else if (data.status === 'pending') {
       toast(t('compose.toastSubmitted'));
     } else {
       toast(t('compose.toastPublished'));
@@ -73,10 +80,10 @@ export default function NewPostForm({ defaultOpen = false }) {
         type="button"
         className="composer-trigger"
         onClick={() => setOpen(true)}
-        aria-label={t('compose.title')}
+        aria-label={t(isDiscussion ? 'compose.discussion.title' : 'compose.title')}
       >
-        <span className="avatar">✍️</span>
-        <span>{t('compose.trigger')}</span>
+        <span className="avatar">{isDiscussion ? '💬' : '✍️'}</span>
+        <span>{t(isDiscussion ? 'compose.discussion.trigger' : 'compose.trigger')}</span>
       </button>
     );
   }
@@ -87,7 +94,9 @@ export default function NewPostForm({ defaultOpen = false }) {
   return (
     <form className="card" onSubmit={submit}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ fontWeight: 700, fontSize: 16 }}>{t('compose.title')}</div>
+        <div style={{ fontWeight: 700, fontSize: 16 }}>
+          {t(isDiscussion ? 'compose.discussion.title' : 'compose.title')}
+        </div>
         <button
           type="button"
           className="ghost small"
@@ -99,21 +108,25 @@ export default function NewPostForm({ defaultOpen = false }) {
       <input
         ref={titleRef}
         type="text"
-        placeholder={t('compose.titlePlaceholder')}
+        placeholder={t(isDiscussion ? 'compose.discussion.titlePlaceholder' : 'compose.titlePlaceholder')}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         maxLength={MAX_TITLE + 20}
       />
       <div style={{ height: 10 }} />
       <textarea
-        placeholder={t('compose.contentPlaceholder')}
+        placeholder={t(isDiscussion ? 'compose.discussion.contentPlaceholder' : 'compose.contentPlaceholder')}
         value={content}
         onChange={(e) => setContent(e.target.value)}
         maxLength={MAX_CONTENT + 100}
-        rows={6}
+        rows={isDiscussion ? 4 : 6}
       />
-      <div style={{ height: 12 }} />
-      <TagPicker value={tag} onChange={setTag} />
+      {!isDiscussion && (
+        <>
+          <div style={{ height: 12 }} />
+          <TagPicker value={tag} onChange={setTag} />
+        </>
+      )}
       <div style={{ height: 14 }} />
       <IdentityPicker
         named={named}
@@ -125,7 +138,9 @@ export default function NewPostForm({ defaultOpen = false }) {
           {content.length}/{MAX_CONTENT}
         </span>
         <button type="submit" disabled={busy || !title.trim() || !content.trim() || titleOver || contentOver}>
-          {busy ? t('compose.submitting') : t('compose.submit')}
+          {busy
+            ? t('compose.submitting')
+            : t(isDiscussion ? 'compose.discussion.submit' : 'compose.submit')}
         </button>
       </div>
       {err && <div className="error">{err}</div>}

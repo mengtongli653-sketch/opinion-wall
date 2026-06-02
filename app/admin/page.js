@@ -95,6 +95,9 @@ export default function AdminHome() {
         {posts.map((p) => (
           <div key={p.id} className="comment">
             <div className="post-meta" style={{ marginBottom: 4, marginTop: 0 }}>
+              {p.kind === 'discussion' && (
+                <span className="badge kind-discussion">{t('forum.kind.badge')}</span>
+              )}
               {p.status === 'pending' && (
                 <span className="badge" style={{ background: 'var(--warn-soft)', color: 'var(--warn)' }}>
                   {t('post.badge.pending')}

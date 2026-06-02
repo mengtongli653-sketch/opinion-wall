@@ -24,6 +24,7 @@ export async function POST(request) {
   const content = String(body.content || '').trim();
   const tag = normalizeTag(body.tag);
   const display_name = normalizeDisplayName(body.display_name);
+  const kind = body.kind === 'discussion' ? 'discussion' : 'article';
 
   if (!title || !content) {
     return NextResponse.json({ error: '标题和内容不能为空' }, { status: 400 });
@@ -42,20 +43,22 @@ export async function POST(request) {
 
   const response = NextResponse.json({ ok: true });
   const anonId = getOrCreateAnonId(response);
-  // Editors publish directly; reader submissions sit in the editor inbox
-  // until approved.
-  const status = isAdmin() ? 'published' : 'pending';
+  // Discussions are the free-flow track — they skip the editor queue.
+  // Articles still go pending → editor review → published, unless the
+  // submitter is already an editor.
+  const status = kind === 'discussion' || isAdmin() ? 'published' : 'pending';
   const post = createPost({
     title,
     content,
     author_tag: `匿名#${anonId}`,
     display_name,
     tag,
+    kind,
     status,
   });
 
   return NextResponse.json(
-    { ok: true, id: post.id, status: post.status },
+    { ok: true, id: post.id, kind: post.kind, status: post.status },
     { headers: response.headers }
   );
 }

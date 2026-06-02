@@ -180,6 +180,21 @@ a:hover { text-decoration: underline; }
 .subnav a:hover { color: var(--primary); text-decoration: none; }
 .subnav a.active { color: var(--primary); }
 
+/* Casual side-channel: 自由讨论 is shown as a small pill so it reads as
+   secondary to the formal Front Page. */
+.subnav .subnav-pill {
+  background: rgba(14, 165, 233, 0.14);
+  color: var(--accent);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+}
+.subnav .subnav-pill:hover {
+  background: rgba(14, 165, 233, 0.24);
+  color: var(--accent);
+}
+
 /* ========= Layout ========= */
 .container {
   max-width: 880px;
@@ -1170,6 +1185,114 @@ button.icon {
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   margin-bottom: 12px;
+}
+
+/* ========= Forum / Free Discussion ========= */
+.forum-heading {
+  margin: 4px 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.forum-heading-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.forum-heading-row h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+.forum-heading-row .muted {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+.forum-heading-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  font-family: var(--font-serif);
+}
+
+.card.discussion {
+  padding: 16px 18px;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+}
+.discussion-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.discussion-badge {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 7px;
+  background: rgba(14, 165, 233, 0.14);
+  color: var(--accent);
+  border-radius: 2px;
+}
+.discussion-byline .named {
+  font-weight: 700;
+  color: var(--text);
+  margin-left: 2px;
+}
+.discussion-byline .anon {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: 600;
+  margin-left: 2px;
+}
+.discussion-meta .sep { color: var(--text-dim); }
+.discussion-title {
+  margin: 0 0 8px;
+  font-size: 16.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  font-family: var(--font-sans); /* casual — sans-serif headline, unlike articles */
+}
+.discussion-title a { color: var(--text); }
+.discussion-title a:hover { color: var(--primary); text-decoration: none; }
+.discussion-content {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 12px;
+}
+.discussion-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.discussion-reply-link {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.discussion-reply-link:hover { color: var(--primary); text-decoration: none; }
+
+/* Small DISCUSSION badge used in admin recent list and elsewhere */
+.badge.kind-discussion {
+  background: rgba(14, 165, 233, 0.14);
+  color: var(--accent);
 }
 
 /* ========= Article toolbar (back + download PDF) ========= */
