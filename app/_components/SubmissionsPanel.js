@@ -45,7 +45,7 @@ export default function SubmissionsPanel({ initial }) {
         }}
       >
         <span style={{ fontWeight: 700, fontFamily: 'var(--font-serif)', fontSize: 18 }}>
-          📨 {t('submissions.title')}
+          {t('submissions.title')}
         </span>
         {items.length > 0 && (
           <span className="badge" style={{ background: 'var(--warn-soft)', color: 'var(--warn)' }}>

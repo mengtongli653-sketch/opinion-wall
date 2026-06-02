@@ -67,7 +67,7 @@ export default function ReportsPanel({ initial }) {
   return (
     <div className="card">
       <div style={{ fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span>🚩 {t('reports.title')}</span>
+        <span>{t('reports.title')}</span>
         <span className="muted" style={{ fontSize: 12, fontWeight: 400 }}>
           {items.length > 0 ? `(${items.length})` : ''}
         </span>
@@ -84,9 +84,9 @@ export default function ReportsPanel({ initial }) {
               <span className="badge" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>
                 {r.target_type === 'post' ? t('reports.typePost') : t('reports.typeComment')}
               </span>
-              <span className="muted">❤️ {r.likes} · 🚩 {r.reports}</span>
-              {r.visibility === 'hidden' && <span className="badge" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>🛑 {t('admin.menu.visHidden')}</span>}
-              {r.visibility === 'shown' && <span className="badge" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>👁 {t('admin.menu.visShown')}</span>}
+              <span className="muted">{t('like.do')} {r.likes} · {t('report.short')} {r.reports}</span>
+              {r.visibility === 'hidden' && <span className="badge" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>{t('admin.menu.visHidden')}</span>}
+              {r.visibility === 'shown' && <span className="badge" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>{t('admin.menu.visShown')}</span>}
             </div>
             {r.title && (
               <div>
@@ -117,12 +117,12 @@ export default function ReportsPanel({ initial }) {
                 className="small secondary"
                 disabled={busy}
                 onClick={() => setVisibility(r.target_type, r.target_id, 'hidden', t('admin.toast.visHidden'))}
-              >🛑 {t('reports.btnHide')}</button>
+              >{t('reports.btnHide')}</button>
               <button
                 className="small secondary"
                 disabled={busy}
                 onClick={() => setVisibility(r.target_type, r.target_id, 'shown', t('admin.toast.visShown'))}
-              >👁 {t('reports.btnShow')}</button>
+              >{t('reports.btnShow')}</button>
               <button
                 className="small secondary"
                 disabled={busy}
@@ -132,7 +132,7 @@ export default function ReportsPanel({ initial }) {
                 className="small danger secondary"
                 disabled={busy}
                 onClick={() => del(r.target_type, r.target_id)}
-              >🗑 {t('reports.btnDelete')}</button>
+              >{t('reports.btnDelete')}</button>
             </div>
           </div>
         );

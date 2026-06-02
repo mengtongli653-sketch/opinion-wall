@@ -16,7 +16,6 @@ export default function TagPicker({ value, onChange }) {
             className={`chip ${value === tag.id ? 'active' : ''}`}
             onClick={() => onChange(value === tag.id ? null : tag.id)}
           >
-            <span aria-hidden>{tag.emoji}</span>
             <span>{t(tag.i18nKey)}</span>
           </button>
         ))}

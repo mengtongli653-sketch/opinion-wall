@@ -10,7 +10,7 @@ export default function HiddenContent({ children, reason }) {
     return (
       <div>
         <div className="hidden-banner">
-          <span>⚠️ {t('hidden.shown')}</span>
+          <span>{t('hidden.shown')}</span>
           <button type="button" className="ghost small" onClick={() => setShown(false)}>{t('hidden.hideAgain')}</button>
         </div>
         {children}
@@ -19,7 +19,6 @@ export default function HiddenContent({ children, reason }) {
   }
   return (
     <div className="hidden-placeholder">
-      <div className="emoji">🛑</div>
       <div className="title">{t('hidden.title')}</div>
       <div className="sub">{reason || t('hidden.sub')}</div>
       <button type="button" className="ghost small" onClick={() => setShown(true)}>

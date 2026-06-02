@@ -28,7 +28,7 @@ export default function Forum() {
     <>
       <div className="forum-heading">
         <div className="forum-heading-row">
-          <h2>💬 {t('forum.title')}</h2>
+          <h2>{t('forum.title')}</h2>
           <span className="muted">{posts.length}</span>
         </div>
         <div className="forum-heading-sub">{t('forum.sub')}</div>
@@ -39,7 +39,6 @@ export default function Forum() {
       {posts.length === 0 && (
         <div className="card">
           <div className="empty">
-            <span className="emoji">🌱</span>
             <div className="title">{t('forum.empty')}</div>
           </div>
         </div>

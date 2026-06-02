@@ -58,7 +58,6 @@ export default function Home({ searchParams }) {
       {posts.length === 0 && (
         <div className="card">
           <div className="empty">
-            <span className="emoji">📰</span>
             <div className="title">{t('home.empty.title')}</div>
             <div className="sub">{t('home.empty.sub')}</div>
           </div>

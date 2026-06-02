@@ -22,7 +22,7 @@ export default function LangSwitch() {
       aria-label="Switch language"
       title={locale === 'zh' ? 'Switch to English' : '切换到中文'}
     >
-      🌐 {t('nav.lang')}
+      {t('nav.lang')}
     </button>
   );
 }

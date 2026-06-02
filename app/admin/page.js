@@ -114,12 +114,12 @@ export default function AdminHome() {
               {p.featured ? <span className="badge feat">{t('post.badge.featured')}</span> : null}
               {p.visibility === 'hidden' && (
                 <span className="badge" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>
-                  🛑 {t('admin.menu.visHidden')}
+                  {t('admin.menu.visHidden')}
                 </span>
               )}
               {p.visibility === 'shown' && (
                 <span className="badge" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>
-                  👁 {t('admin.menu.visShown')}
+                  {t('admin.menu.visShown')}
                 </span>
               )}
             </div>
@@ -130,7 +130,7 @@ export default function AdminHome() {
               {p.content.length > 120 ? p.content.slice(0, 120) + '…' : p.content}
             </div>
             <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
-              ❤️ {p.likes || 0} · 🚩 {p.reports || 0}
+              {t('like.do')} {p.likes || 0} · {t('report.short')} {p.reports || 0}
             </div>
             <div style={{ marginTop: 8 }}>
               <AdminPostControls

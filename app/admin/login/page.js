@@ -33,7 +33,6 @@ export default function AdminLogin() {
       onSubmit={submit}
       style={{ maxWidth: 380, margin: '48px auto', padding: 24 }}
     >
-      <div style={{ fontSize: 32, textAlign: 'center', marginBottom: 4 }}>🔐</div>
       <div style={{ fontWeight: 700, fontSize: 17, textAlign: 'center', marginBottom: 18 }}>
         {t('login.title')}
       </div>

@@ -39,7 +39,7 @@ export default function ExportButton() {
 
   return (
     <button type="button" className="secondary small" onClick={exportXlsx} disabled={busy}>
-      {busy ? `⏳ ${t('export.busy')}` : `📥 ${t('export.button')}`}
+      {busy ? t('export.busy') : t('export.button')}
     </button>
   );
 }

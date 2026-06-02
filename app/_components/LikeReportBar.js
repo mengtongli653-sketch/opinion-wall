@@ -88,7 +88,7 @@ export default function LikeReportBar({ target, id, likes, reports, liked, repor
         aria-pressed={localLiked}
         title={localLiked ? t('like.cancel') : t('like.do')}
       >
-        <span aria-hidden>{localLiked ? '❤️' : '🤍'}</span>
+        <span>{t('like.do')}</span>
         <span>{localLikes}</span>
       </button>
       <button
@@ -98,7 +98,7 @@ export default function LikeReportBar({ target, id, likes, reports, liked, repor
         disabled={localReported}
         title={localReported ? t('report.alreadyReported') : t('report.title')}
       >
-        <span aria-hidden>🚩</span>
+        <span>{t('report.short')}</span>
         <span>{localReports}</span>
       </button>
 

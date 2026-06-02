@@ -54,7 +54,7 @@ export default function RootLayout({ children }) {
 
             <nav className="subnav" aria-label="primary">
               <a href="/">{t('nav.home')}</a>
-              <a href="/forum" className="subnav-pill">💬 {t('nav.forum')}</a>
+              <a href="/forum" className="subnav-pill">{t('nav.forum')}</a>
               {admin ? (
                 <>
                   <a href="/admin">{t('nav.admin')}</a>
