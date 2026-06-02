@@ -33,8 +33,6 @@ export default function RootLayout({ children }) {
 
   const brand = t('site.brand');
   const tagline = t('site.tagline');
-  const vol = t('site.masthead.vol');
-  const no = t('site.masthead.no');
   const subline = t('site.masthead.subline');
   const dateline = formatIssueDate(locale);
 
@@ -49,8 +47,6 @@ export default function RootLayout({ children }) {
               </h1>
               <div className="masthead-tagline">{tagline}</div>
               <div className="masthead-issue">
-                <span>{vol}</span>
-                <span>{no}</span>
                 <span>{dateline}</span>
               </div>
               <div className="masthead-subline">{subline}</div>

@@ -37,7 +37,18 @@ export default function PostPage({ params }) {
 
   return (
     <>
-      <a href="/" className="back-link">{t('home.back')}</a>
+      <div className="article-toolbar">
+        <a href="/" className="back-link">{t('home.back')}</a>
+        <a
+          href={`/post/${post.id}/print`}
+          target="_blank"
+          rel="noopener"
+          className="back-link"
+          title={t('article.downloadPdfTitle')}
+        >
+          {t('article.downloadPdf')}
+        </a>
+      </div>
 
       <article className="article-detail">
         {(post.pinned || post.featured) && (
