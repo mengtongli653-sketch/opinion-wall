@@ -11,6 +11,7 @@ import {
   listPendingPosts,
   countPendingPosts,
   getSection,
+  listEditorContacts,
 } from '@/lib/db';
 import { formatFull, formatRelative } from '@/lib/time';
 import { readLocaleFromCookies, makeT } from '@/lib/i18n';
@@ -18,6 +19,7 @@ import BlockedWordsManager from '@/app/_components/BlockedWordsManager';
 import AdminPostControls from '@/app/_components/AdminPostControls';
 import ReportsPanel from '@/app/_components/ReportsPanel';
 import SubmissionsPanel from '@/app/_components/SubmissionsPanel';
+import EditorContactsManager from '@/app/_components/EditorContactsManager';
 import ExportButton from '@/app/_components/ExportButton';
 
 export const dynamic = 'force-dynamic';
@@ -53,6 +55,7 @@ export default function AdminHome() {
     section_name: p.tag ? (getSection(p.tag)?.name ?? null) : null,
   }));
   const words = getBlockedWords();
+  const contacts = listEditorContacts();
   const reports = listReports({ resolved: false });
   const stats = {
     posts: countPosts(),
@@ -90,6 +93,8 @@ export default function AdminHome() {
       <SubmissionsPanel initial={pending} />
 
       <ReportsPanel initial={reports} />
+
+      <EditorContactsManager initial={contacts} />
 
       <BlockedWordsManager initial={words} />
 

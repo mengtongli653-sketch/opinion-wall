@@ -1454,6 +1454,107 @@ body.printing-mode .container {
   .section-nav a { padding: 10px 10px; font-size: 10px; }
 }
 
+/* ========= Colophon footer extras ========= */
+.colophon-links {
+  margin-top: 6px;
+  font-family: var(--font-serif);
+  font-size: 12.5px;
+}
+.colophon-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--text-dim);
+  padding-bottom: 1px;
+}
+.colophon-links a:hover { color: var(--primary); border-bottom-color: var(--primary); text-decoration: none; }
+
+/* ========= /letters — public Reader Letters page ========= */
+.contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.contact-row {
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+}
+.contact-row:first-child { border-top: 1px solid var(--rule); }
+.contact-row:last-child { border-bottom: 1px solid var(--rule); }
+.contact-row-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.contact-name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--text);
+}
+.contact-role {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+.contact-method {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-size: 14px;
+}
+.contact-method-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+.contact-method-value {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  color: var(--text);
+  word-break: break-all;
+}
+
+/* ========= Admin: editor contacts manager ========= */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--card-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+.contact-admin-row {
+  border-top: 1px solid var(--border);
+  padding: 12px 0;
+}
+.contact-admin-row:first-of-type { border-top: 0; }
+.contact-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.contact-display-left { flex: 1; min-width: 160px; }
+.contact-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--card-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
 /* =========================================================
    Motion — restrained, newspaper-appropriate
    No bounces, no glows, no rotation. Purely fades + tiny

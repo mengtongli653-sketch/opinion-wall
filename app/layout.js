@@ -98,6 +98,9 @@ export default function RootLayout({ children }) {
                 {brand !== BRAND && <span className="dim"> · {BRAND}</span>}
               </div>
               <div className="dim">{subline}</div>
+              <div className="colophon-links">
+                <a href="/letters">{t('letters.navLink')}</a>
+              </div>
             </footer>
           </ToastProvider>
         </LangProvider>
