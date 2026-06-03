@@ -1519,39 +1519,15 @@ html { scroll-behavior: smooth; }
 .letters-section       { animation: ink-fade-in 860ms cubic-bezier(0.4, 0, 0.2, 1) 160ms both; }
 .letters-heading       { animation: ink-fade-in 860ms cubic-bezier(0.4, 0, 0.2, 1) 260ms both; }
 
-/* Like / Flag buttons: very subtle press. No pop, no spring — just
-   a small acknowledgement. */
-.lr-btn { transition: background .15s ease, color .15s ease, transform .12s ease; }
-.lr-btn:active { transform: scale(0.96); }
-
-/* Tag chips and report categories: smooth press. */
-.chip { transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s ease; }
-.chip:active { transform: scale(0.97); }
-
-/* Buttons: keep newspaper restraint, just a soft press. */
-button { transition: background .15s ease, border-color .15s ease, opacity .15s ease, transform .1s ease, box-shadow .15s ease; }
-button:active { transform: translateY(0.5px); }
-
-/* Card hover already shifts border + box-shadow — those are
-   composited cheaply. We avoid transitioning background-color here
-   because background paint is one of the more expensive operations
-   per scroll frame when multiple cards are visible. */
-.card.linkable { transition: border-color .3s ease, box-shadow .3s ease, transform .3s ease; }
-.card.linkable:hover { transform: translate3d(0, -1px, 0); }
-
-/* Section-nav: smooth transitions on hover/active. */
-.section-nav a { transition: color .3s ease, border-bottom-color .3s ease; }
-
-/* Modal: existing keyframes already cover this; reinforce the
-   backdrop fade for slow connections. */
-.modal-backdrop { animation: fade-in 320ms cubic-bezier(0.4, 0, 0.2, 1); }
-
-/* Toast: keep existing toast-in, just smooth its curve. */
-.toast { animation: toast-in 360ms cubic-bezier(0.4, 0, 0.2, 1); }
-
-/* Hidden-content placeholder reveal: smooth fade when the user
-   clicks "Show anyway". */
-.hidden-banner { animation: ink-fade-in 400ms cubic-bezier(0.4, 0, 0.2, 1); }
+/* In-page interactions intentionally have NO motion:
+   - No hover lift on cards
+   - No press scale on buttons / chips / like-flag bar
+   - Modal / toast / hidden-banner show instantly (no fade or slide)
+   The page only animates once, on entrance. */
+.modal-backdrop  { animation: none; }
+.modal           { animation: none; }
+.toast           { animation: none; }
+.hidden-banner   { animation: none; }
 
 /* Honor reduced-motion users — strip every animation and transition
    down to an instant. */
