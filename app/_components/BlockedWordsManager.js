@@ -37,48 +37,40 @@ export default function BlockedWordsManager({ initial }) {
   }
 
   return (
-    <div className="panel">
-      <div className="panel-header">
-        <h2>{t('admin.words.title')}</h2>
-        <span className="count">{words.length}</span>
-      </div>
-      <div className="panel-body">
-        <form onSubmit={add} className="row" style={{ gap: 8 }}>
-          <input
-            type="text"
-            placeholder={t('admin.words.placeholder')}
-            value={w}
-            onChange={(e) => setW(e.target.value)}
-            style={{ flex: 1 }}
-          />
-          <button type="submit" disabled={busy}>{busy ? t('admin.words.adding') : t('admin.words.add')}</button>
-        </form>
-        {err && <div className="error">{err}</div>}
-        <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {words.length === 0 && <div className="muted">{t('admin.words.empty')}</div>}
-          {words.map((x) => (
-            <span key={x.id} className="chip-status danger" style={{ padding: '0 4px 0 10px', gap: 4 }}>
-              {x.word}
-              <button
-                onClick={() => remove(x.id)}
-                className="ghost"
-                style={{
-                  background: 'transparent',
-                  color: 'var(--danger)',
-                  padding: 0,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  lineHeight: 1,
-                  height: 18,
-                  width: 18,
-                  minWidth: 18,
-                  border: 0,
-                }}
-                title={t('admin.menu.delete')}
-              >×</button>
-            </span>
-          ))}
-        </div>
+    <div className="card">
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>{t('admin.words.title')}</div>
+      <form onSubmit={add} className="row">
+        <input
+          type="text"
+          placeholder={t('admin.words.placeholder')}
+          value={w}
+          onChange={(e) => setW(e.target.value)}
+        />
+        <button type="submit" disabled={busy}>{busy ? t('admin.words.adding') : t('admin.words.add')}</button>
+      </form>
+      {err && <div className="error">{err}</div>}
+      <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {words.length === 0 && <div className="muted">{t('admin.words.empty')}</div>}
+        {words.map((x) => (
+          <span
+            key={x.id}
+            style={{
+              background: 'var(--danger-soft)', color: 'var(--danger)', padding: '4px 4px 4px 10px',
+              borderRadius: 999, fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            {x.word}
+            <button
+              onClick={() => remove(x.id)}
+              style={{
+                background: 'transparent', color: 'var(--danger)', padding: 0,
+                fontWeight: 700, fontSize: 16, lineHeight: 1, height: 22, width: 22, minWidth: 22,
+                borderRadius: '50%',
+              }}
+              title={t('admin.menu.delete')}
+            >×</button>
+          </span>
+        ))}
       </div>
     </div>
   );

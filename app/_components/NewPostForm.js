@@ -82,12 +82,7 @@ export default function NewPostForm({ defaultOpen = false, kind = 'article' }) {
         onClick={() => setOpen(true)}
         aria-label={t(isDiscussion ? 'compose.discussion.title' : 'compose.title')}
       >
-        <span className="composer-trigger-title">
-          {t(isDiscussion ? 'compose.discussion.trigger' : 'compose.trigger')}
-        </span>
-        <span className="composer-trigger-sub">
-          {t(isDiscussion ? 'compose.discussion.triggerSub' : 'compose.triggerSub')}
-        </span>
+        <span>{t(isDiscussion ? 'compose.discussion.trigger' : 'compose.trigger')}</span>
       </button>
     );
   }

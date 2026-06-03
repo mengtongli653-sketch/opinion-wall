@@ -65,95 +65,78 @@ export default function ReportsPanel({ initial }) {
   }
 
   return (
-    <div className="panel">
-      <div className="panel-header">
-        <h2>{t('reports.title')}</h2>
-        {items.length > 0 ? (
-          <span className="count">{items.length}</span>
-        ) : (
-          <span className="count">{t('reports.empty')}</span>
-        )}
+    <div className="card">
+      <div style={{ fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span>{t('reports.title')}</span>
+        <span className="muted" style={{ fontSize: 12, fontWeight: 400 }}>
+          {items.length > 0 ? `(${items.length})` : ''}
+        </span>
       </div>
-      <div className="panel-body flush">
-        {items.map((r) => {
-          const key = `${r.target_type}:${r.target_id}`;
-          const busy = busyKey.startsWith(key + ':');
-          return (
-            <div key={key} className="list-item">
-              <div className="list-item-meta">
-                <span className="chip-status muted">
-                  {r.target_type === 'post' ? t('reports.typePost') : t('reports.typeComment')}
-                </span>
-                {r.visibility === 'hidden' && (
-                  <span className="chip-status danger">{t('admin.menu.visHidden')}</span>
-                )}
-                {r.visibility === 'shown' && (
-                  <span className="chip-status info">{t('admin.menu.visShown')}</span>
-                )}
-                <span className="muted">
-                  {t('like.do')} {r.likes} · {t('report.short')} {r.reports}
-                </span>
-              </div>
-              {r.title && (
-                <div className="list-item-title">
-                  <a href={`/post/${r.post_id}`}>{r.title}</a>
-                </div>
-              )}
-              <div className="list-item-body">
-                {r.target_type === 'comment' && (
-                  <a href={`/post/${r.post_id}#comments`} className="muted" style={{ marginRight: 6 }}>
-                    → {t('reports.viewInThread')}
-                  </a>
-                )}
-                {r.preview}
-              </div>
-
-              <div style={{
-                marginTop: 8,
-                background: 'var(--surface-sunken)',
-                border: '1px solid var(--border)',
-                borderRadius: 6,
-                padding: '8px 10px',
-              }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, color: 'var(--text-secondary)' }}>
-                  {t('reports.reasonsHeading')}
-                </div>
-                {r.items.map((item) => (
-                  <div key={item.id} style={{ fontSize: 13, paddingTop: 4, display: 'flex', gap: 6, alignItems: 'flex-start' }}>
-                    <span className="chip-status danger">
-                      {t(CAT_KEY[item.category] || 'report.cat.other')}
-                    </span>
-                    <span style={{ flex: 1 }}>{item.reason}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="list-item-actions">
-                <button
-                  className="small secondary"
-                  disabled={busy}
-                  onClick={() => setVisibility(r.target_type, r.target_id, 'hidden', t('admin.toast.visHidden'))}
-                >{t('reports.btnHide')}</button>
-                <button
-                  className="small secondary"
-                  disabled={busy}
-                  onClick={() => setVisibility(r.target_type, r.target_id, 'shown', t('admin.toast.visShown'))}
-                >{t('reports.btnShow')}</button>
-                <button
-                  className="small secondary"
-                  disabled={busy}
-                  onClick={() => resolve(r.target_type, r.target_id)}
-                >{t('reports.btnResolve')}</button>
-                <button
-                  className="small danger secondary"
-                  disabled={busy}
-                  onClick={() => del(r.target_type, r.target_id)}
-                >{t('reports.btnDelete')}</button>
-              </div>
+      {items.length === 0 && (
+        <div className="muted" style={{ fontSize: 13 }}>{t('reports.empty')}</div>
+      )}
+      {items.map((r) => {
+        const key = `${r.target_type}:${r.target_id}`;
+        const busy = busyKey.startsWith(key + ':');
+        return (
+          <div key={key} className="comment">
+            <div className="post-meta" style={{ marginBottom: 4, marginTop: 0 }}>
+              <span className="badge" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>
+                {r.target_type === 'post' ? t('reports.typePost') : t('reports.typeComment')}
+              </span>
+              <span className="muted">{t('like.do')} {r.likes} · {t('report.short')} {r.reports}</span>
+              {r.visibility === 'hidden' && <span className="badge" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>{t('admin.menu.visHidden')}</span>}
+              {r.visibility === 'shown' && <span className="badge" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>{t('admin.menu.visShown')}</span>}
             </div>
-          );
-        })}
-      </div>
+            {r.title && (
+              <div>
+                <a href={`/post/${r.post_id}`} style={{ fontWeight: 600, color: 'var(--text)' }}>{r.title}</a>
+              </div>
+            )}
+            <div className="post-content muted" style={{ fontSize: 13, marginTop: 2 }}>
+              {r.target_type === 'comment' && (
+                <a href={`/post/${r.post_id}#comments`} className="muted" style={{ marginRight: 6 }}>→ {t('reports.viewInThread')}</a>
+              )}
+              {r.preview}
+            </div>
+
+            <div style={{ marginTop: 8, background: 'var(--card-hover)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 10px' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t('reports.reasonsHeading')}</div>
+              {r.items.map((item) => (
+                <div key={item.id} style={{ fontSize: 13, paddingTop: 4 }}>
+                  <span className="badge" style={{ background: 'var(--danger-soft)', color: 'var(--danger)', marginRight: 6 }}>
+                    {t(CAT_KEY[item.category] || 'report.cat.other')}
+                  </span>
+                  <span>{item.reason}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="row" style={{ marginTop: 10, flexWrap: 'wrap' }}>
+              <button
+                className="small secondary"
+                disabled={busy}
+                onClick={() => setVisibility(r.target_type, r.target_id, 'hidden', t('admin.toast.visHidden'))}
+              >{t('reports.btnHide')}</button>
+              <button
+                className="small secondary"
+                disabled={busy}
+                onClick={() => setVisibility(r.target_type, r.target_id, 'shown', t('admin.toast.visShown'))}
+              >{t('reports.btnShow')}</button>
+              <button
+                className="small secondary"
+                disabled={busy}
+                onClick={() => resolve(r.target_type, r.target_id)}
+              >✓ {t('reports.btnResolve')}</button>
+              <button
+                className="small danger secondary"
+                disabled={busy}
+                onClick={() => del(r.target_type, r.target_id)}
+              >{t('reports.btnDelete')}</button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

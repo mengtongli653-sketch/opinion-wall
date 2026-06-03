@@ -21,6 +21,8 @@ export default function Home({ searchParams }) {
   const activeTag = normalizeTag(searchParams?.tag);
   const posts = listPosts({ tag: activeTag });
 
+  // Only render the section filter for sections that actually have
+  // published articles — keeps the bar from showing dead tabs.
   const activeIds = activeSectionIds();
   const visibleSections = listSections().filter((s) => activeIds.has(s.id));
 
@@ -29,6 +31,29 @@ export default function Home({ searchParams }) {
   const ids = posts.map((p) => p.id);
   const likedSet = anonId ? likedIds(anonId, 'post', ids) : new Set();
   const reportedSet = anonId ? reportedIds(anonId, 'post', ids) : new Set();
+
+  const leadPost = posts[0] || null;
+  const restPosts = posts.slice(1);
+
+  const renderArticle = (p, { lead = false } = {}) => {
+    const visibility = effectiveVisibility(p, { forAdmin: admin });
+    const section = p.tag ? getSection(p.tag) : null;
+    const liked = likedSet.has(p.id);
+    const reported = reportedSet.has(p.id);
+    return (
+      <ArticleCard
+        key={p.id}
+        t={t}
+        post={p}
+        section={section}
+        admin={admin}
+        liked={liked}
+        reported={reported}
+        visibility={visibility}
+        lead={lead}
+      />
+    );
+  };
 
   return (
     <>
@@ -44,31 +69,39 @@ export default function Home({ searchParams }) {
         </div>
       )}
 
-      {posts.map((p) => {
-        const visibility = effectiveVisibility(p, { forAdmin: admin });
-        const section = p.tag ? getSection(p.tag) : null;
-        const liked = likedSet.has(p.id);
-        const reported = reportedSet.has(p.id);
-        return (
-          <ArticleCard
-            key={p.id}
-            t={t}
-            post={p}
-            section={section}
-            admin={admin}
-            liked={liked}
-            reported={reported}
-            visibility={visibility}
-          />
-        );
-      })}
+      {leadPost && (
+        <>
+          <div className="index-heading">{t('home.section.lead')}</div>
+          {renderArticle(leadPost, { lead: true })}
+        </>
+      )}
+
+      {restPosts.length > 0 && (
+        <>
+          <div className="index-heading">{t('home.section.latest')}</div>
+          {restPosts.map((p) => renderArticle(p))}
+        </>
+      )}
     </>
   );
 }
 
-function ArticleCard({ t, post, section, admin, liked, reported, visibility }) {
+function ArticleCard({ t, post, section, admin, liked, reported, visibility, lead }) {
+  const classes = ['card', 'article'];
+  if (lead) classes.push('lead');
+  if (post.pinned) classes.push('pinned');
+  if (post.featured) classes.push('featured');
+
   return (
-    <article className="card">
+    <article className={classes.join(' ')}>
+      {(lead || post.pinned || post.featured) && (
+        <div className="badges">
+          {lead ? <span className="badge latest">{t('post.badge.latest')}</span> : null}
+          {post.pinned ? <span className="badge pin">{t('post.badge.pinned')}</span> : null}
+          {post.featured ? <span className="badge feat">{t('post.badge.featured')}</span> : null}
+        </div>
+      )}
+
       {visibility === 'hidden' ? (
         <HiddenContent>
           <ArticleBody t={t} post={post} section={section} liked={liked} reported={reported} />
@@ -76,6 +109,7 @@ function ArticleCard({ t, post, section, admin, liked, reported, visibility }) {
       ) : (
         <ArticleBody t={t} post={post} section={section} liked={liked} reported={reported} />
       )}
+
       {admin && (
         <div className="card-menu">
           <AdminPostControls
@@ -89,48 +123,48 @@ function ArticleCard({ t, post, section, admin, liked, reported, visibility }) {
 
 function ArticleBody({ t, post, section, liked, reported }) {
   return (
-    <div className="article-card">
-      <div className="article-card-meta">
-        {section && (
-          <a className="chip-status info" href={`/?tag=${section.id}`}>{section.name}</a>
-        )}
-        {post.pinned ? <span className="chip-status warn">{t('post.badge.pinned')}</span> : null}
-        {post.featured ? <span className="chip-status info">{t('post.badge.featured')}</span> : null}
-      </div>
+    <>
+      {section && (
+        <div className="section-label">
+          <a href={`/?tag=${section.id}`}>{section.name}</a>
+        </div>
+      )}
 
-      <h3 className="article-card-title">
+      <h3 className="article-title">
         <a href={`/post/${post.id}`}>{post.title}</a>
       </h3>
 
-      <div className="article-card-excerpt">
-        {post.content.length > 200 ? post.content.slice(0, 200) + '…' : post.content}
+      <div className="article-excerpt">
+        {post.content.length > 220 ? post.content.slice(0, 220) + '…' : post.content}
       </div>
 
-      <div className="article-card-footer">
-        <div className="byline">
+      <div className="byline">
+        <span className="by">
+          {t('post.byline.prefix')}{' '}
           {post.display_name ? (
-            <span className="named">{post.display_name}</span>
+            <span className="author named">{post.display_name}</span>
           ) : (
-            <span className="anon">{post.author_tag}</span>
+            <span className="author">{post.author_tag}</span>
           )}
-          <span className="sep">·</span>
-          <span title={formatFull(post.created_at)}>{formatRelative(post.created_at, t)}</span>
-          <span className="sep">·</span>
-          <a href={`/post/${post.id}#comments`}>
-            {t('post.comments.label')} {post.comment_count}
-          </a>
-        </div>
-        <div className="actions">
-          <LikeReportBar
-            target="post"
-            id={post.id}
-            likes={post.likes || 0}
-            reports={post.reports || 0}
-            liked={!!liked}
-            reported={!!reported}
-          />
-        </div>
+        </span>
+        <span className="sep">·</span>
+        <span title={formatFull(post.created_at)}>{formatRelative(post.created_at, t)}</span>
+        <span className="sep">·</span>
+        <a href={`/post/${post.id}#comments`}>
+          {t('post.comments.label')} {post.comment_count}
+        </a>
       </div>
-    </div>
+
+      <div style={{ marginTop: 14 }}>
+        <LikeReportBar
+          target="post"
+          id={post.id}
+          likes={post.likes || 0}
+          reports={post.reports || 0}
+          liked={!!liked}
+          reported={!!reported}
+        />
+      </div>
+    </>
   );
 }

@@ -27,11 +27,11 @@ export default function Forum() {
   return (
     <>
       <div className="forum-heading">
-        <div>
+        <div className="forum-heading-row">
           <h2>{t('forum.title')}</h2>
-          <div className="forum-heading-sub">{t('forum.sub')}</div>
+          <span className="muted">{posts.length}</span>
         </div>
-        <span className="muted">{posts.length}</span>
+        <div className="forum-heading-sub">{t('forum.sub')}</div>
       </div>
 
       <NewPostForm kind="discussion" />
@@ -49,7 +49,7 @@ export default function Forum() {
         const liked = likedSet.has(p.id);
         const reported = reportedSet.has(p.id);
         return (
-          <article key={p.id} className="discussion-card">
+          <article key={p.id} className="card discussion">
             {visibility === 'hidden' ? (
               <HiddenContent>
                 <DiscussionBody t={t} post={p} liked={liked} reported={reported} />
@@ -80,13 +80,19 @@ function DiscussionBody({ t, post, liked, reported }) {
   return (
     <>
       <div className="discussion-meta">
-        {post.display_name ? (
-          <span className="named">{post.display_name}</span>
-        ) : (
-          <span className="anon">{post.author_tag}</span>
-        )}
+        <span className="discussion-badge">{t('forum.kind.badge')}</span>
+        <span className="discussion-byline">
+          {t('post.byline.prefix')}{' '}
+          {post.display_name ? (
+            <span className="named">{post.display_name}</span>
+          ) : (
+            <span className="anon">{post.author_tag}</span>
+          )}
+        </span>
         <span className="sep">·</span>
-        <span title={formatFull(post.created_at)}>{formatRelative(post.created_at, t)}</span>
+        <span className="muted" title={formatFull(post.created_at)}>
+          {formatRelative(post.created_at, t)}
+        </span>
       </div>
 
       <h3 className="discussion-title">
@@ -94,10 +100,10 @@ function DiscussionBody({ t, post, liked, reported }) {
       </h3>
 
       <div className="discussion-content">
-        {post.content.length > 280 ? post.content.slice(0, 280) + '…' : post.content}
+        {post.content.length > 320 ? post.content.slice(0, 320) + '…' : post.content}
       </div>
 
-      <div className="discussion-footer">
+      <div className="discussion-actions">
         <a href={`/post/${post.id}#comments`} className="discussion-reply-link">
           {t('post.comments.label')} {post.comment_count}
         </a>
