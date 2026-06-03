@@ -164,13 +164,16 @@ a:hover { text-decoration: underline; }
   letter-spacing: 0.18em;
   text-transform: uppercase;
   border-bottom: 1px solid var(--header-border);
+  /* Plain semi-opaque bg — drops the backdrop-filter blur that was
+     repainting on every scroll frame. Visually nearly identical. */
   background: var(--header-bg);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-  backdrop-filter: saturate(180%) blur(14px);
   position: sticky;
   top: 0;
   z-index: 20;
   flex-wrap: wrap;
+  /* Hint the compositor that this layer doesn't change so it can
+     skip repainting it during page entrance and scroll. */
+  will-change: auto;
 }
 .subnav a {
   color: var(--text-muted);
@@ -1459,10 +1462,12 @@ body.printing-mode .container {
 
 html { scroll-behavior: smooth; }
 
-/* Slow-deceleration curve that feels typographic, not springy. */
+/* translate3d nudges the browser to put each animating element on
+   its own GPU layer, so the entrance is composited (smooth) rather
+   than painted (janky). */
 @keyframes ink-fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, 4px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0,   0); }
 }
 @keyframes ink-fade-in-still {
   from { opacity: 0; }
@@ -1481,12 +1486,15 @@ html { scroll-behavior: smooth; }
 
 /* Article cards / panels: fade in with a 4px settle. The stagger is
    intentionally relaxed — a newspaper page is set, not cascaded.
-   We cap the stagger after the 6th card so long pages don't drag. */
+   We cap the stagger after the 6th card so long pages don't drag.
+   `will-change` promotes each element to its own compositor layer
+   for the duration so the entrance is GPU-smooth. */
 .card,
 .article-detail,
 .letter,
 .discussion-card {
   animation: ink-fade-in 800ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  will-change: opacity, transform;
 }
 .card:nth-child(1)        { animation-delay:   0ms; }
 .card:nth-child(2)        { animation-delay:  90ms; }
@@ -1524,11 +1532,12 @@ html { scroll-behavior: smooth; }
 button { transition: background .15s ease, border-color .15s ease, opacity .15s ease, transform .1s ease, box-shadow .15s ease; }
 button:active { transform: translateY(0.5px); }
 
-/* Card hover already shifts background/border — add a tiny shadow
-   warmth so the lift feels grounded. Slower so the lift reads
-   clearly. */
-.card.linkable { transition: background .3s ease, border-color .3s ease, box-shadow .3s ease, transform .3s ease; }
-.card.linkable:hover { transform: translateY(-1px); }
+/* Card hover already shifts border + box-shadow — those are
+   composited cheaply. We avoid transitioning background-color here
+   because background paint is one of the more expensive operations
+   per scroll frame when multiple cards are visible. */
+.card.linkable { transition: border-color .3s ease, box-shadow .3s ease, transform .3s ease; }
+.card.linkable:hover { transform: translate3d(0, -1px, 0); }
 
 /* Section-nav: smooth transitions on hover/active. */
 .section-nav a { transition: color .3s ease, border-bottom-color .3s ease; }
