@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "start:lan": "next start -H 0.0.0.0",
-    "seed:words": "node scripts/seed-blocked-words.js"
+    "seed:words": "node scripts/seed-blocked-words.js",
+    "hash": "node scripts/hash-password.js"
   },
   "dependencies": {
     "exceljs": "^4.4.0",

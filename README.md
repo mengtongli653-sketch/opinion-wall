@@ -129,14 +129,48 @@ New-NetFirewallRule -DisplayName "The Daily CWA 3000" `
 
 ## Editor sign-in / 编辑登录
 
-- Default password: `admin123` — override `ADMIN_PASSWORD` in `.env.local`.
-- 默认口令 `admin123`,请在 `.env.local` 中覆盖 `ADMIN_PASSWORD`。
+- Default password: `admin123`. Sign in at `/admin/login` (the subnav "编辑登录 / Editor Sign-in" link).
+- 默认口令 `admin123`。登录入口:顶栏「编辑登录 / Editor Sign-in」或直接访问 `/admin/login`。
 
-- Sign in at `/admin/login` (the subnav "编辑登录 / Editor Sign-in" link).
-- 登录入口:顶栏「编辑登录 / Editor Sign-in」或直接访问 `/admin/login`。
+- The password is stored as a **scrypt hash** (RFC 7914, Node built-in, memory-hard) in `ADMIN_PASSWORD_HASH`, not in plaintext. See [Change the admin password](#change-the-admin-password--修改管理员密码) below.
+- 管理员密码以 **scrypt 哈希**(RFC 7914,Node 内置,内存难算法)形式存于 `ADMIN_PASSWORD_HASH`,而非明文。修改方法见下方[修改管理员密码](#change-the-admin-password--修改管理员密码)。
 
 - `SESSION_SECRET` should be a long random string — anyone who knows it can forge editor tokens.
 - **务必修改** `SESSION_SECRET` 为一段长随机字符串,否则知道默认值的人可以伪造编辑会话。
+
+### Change the admin password / 修改管理员密码
+
+```bash
+npm run hash
+```
+
+The script prompts for the new password (input is masked as `****`), asks you to confirm, and prints a single line like:
+
+脚本会提示你输入新密码(输入会被遮成 `****`),让你确认一次,然后打印一行:
+
+```
+ADMIN_PASSWORD_HASH=<32-char-salt>:<128-char-hash>
+```
+
+Paste this line into `.env.local`, replacing the old `ADMIN_PASSWORD_HASH=` line, and restart the dev/prod server.
+
+把这一行粘进 `.env.local`,替换原来的 `ADMIN_PASSWORD_HASH=` 那一行,然后重启 dev/prod 服务器即可。
+
+How it works under the hood / 原理:
+
+- A random 16-byte salt is generated per password.
+- `crypto.scryptSync(password, salt, 64)` produces a 64-byte derived key. scrypt is memory-hard, which makes GPU/ASIC brute-force ~100× more expensive than PBKDF2 at the same wall-clock cost.
+- On login, the server re-runs scrypt with the stored salt over the submitted password and compares with `crypto.timingSafeEqual`, eliminating timing side-channels.
+- Zero new dependencies — everything is in Node's built-in `crypto` module.
+
+- 每次设置密码时生成 16 字节随机 salt。
+- `crypto.scryptSync(password, salt, 64)` 产出 64 字节派生密钥。scrypt 是**内存难**算法,GPU/ASIC 暴力破解成本比同样耗时的 PBKDF2 高约 100 倍。
+- 登录时服务端用同样的 salt 对用户输入重新跑 scrypt,再用 `crypto.timingSafeEqual` 常数时间比较,堵掉时序攻击。
+- **不引入任何新依赖**,完全用 Node 内置 `crypto` 模块。
+
+If `ADMIN_PASSWORD_HASH` is missing, the server falls back to the legacy plaintext `ADMIN_PASSWORD` env var (with a console warning) so older `.env.local` files don't break. Migration is just one `npm run hash`.
+
+若 `ADMIN_PASSWORD_HASH` 缺失,服务端会回退到旧的明文 `ADMIN_PASSWORD`(并打印一次警告),保证老 `.env.local` 不会突然登录失败。迁移方式就是跑一次 `npm run hash`。
 
 ---
 
