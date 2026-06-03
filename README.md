@@ -92,38 +92,160 @@ The site runs two parallel feeds with deliberately different rules — formal ne
 
 ---
 
-## Quick start / 快速启动
+## Quick start (local dev) / 快速启动(本机开发)
 
 ```bash
 npm install
-cp .env.example .env.local   # edit ADMIN_PASSWORD and SESSION_SECRET
-npm run dev                  # localhost only
-# or
-npm run dev:lan              # bind 0.0.0.0 for LAN access
+npm run setup        # bootstrap .env.local with fresh secrets (idempotent)
+npm run seed:words   # populate the default blocked-word list
+npm run dev          # localhost only
 ```
 
-安装依赖后,复制 `.env.example` 为 `.env.local`,修改 `ADMIN_PASSWORD` 和 `SESSION_SECRET`。`npm run dev` 仅本机访问,`npm run dev:lan` 监听 `0.0.0.0` 供局域网访问。
+Open / 打开浏览器访问: http://localhost:3000 — default login `admin123` / 默认登录口令 `admin123`.
 
-Open / 打开浏览器访问: http://localhost:3000
+`npm run setup` is idempotent: if `.env.local` already has a real `SESSION_SECRET` it leaves it alone, otherwise it generates a fresh 48-character random one and re-salts the shipped admin123 hash so this install is unique.
+
+`npm run setup` 是幂等的:如果你的 `.env.local` 已经有真实的 `SESSION_SECRET`,它不动;否则会自动生成 48 位随机串,并把出厂自带的 `admin123` 哈希重新加 salt,让你这台机器拥有独立的密钥。
 
 ---
 
-## Production / 生产部署
+## Deploy on a fresh LAN server / 局域网服务器从零部署
+
+End-to-end walkthrough for putting the site on a Windows or Linux box that other devices on the same network will access. **Total time: ~5 minutes.**
+
+Windows 或 Linux 机器上从零部署到局域网,其它设备同网即可访问。**全程约 5 分钟。**
+
+### 1. Install Node.js 18 LTS or newer / 安装 Node.js 18 LTS 或更新
+
+- **Windows:** https://nodejs.org → LTS installer, default options.
+- **Linux:** `sudo apt install nodejs npm` (Ubuntu / Debian) or use NodeSource.
+- Verify / 验证: `node -v` should print `v18.x` or higher.
+
+### 2. Get the code / 拉代码
+
+```bash
+git clone https://github.com/mengtongli653-sketch/opinion-wall.git
+cd opinion-wall
+```
+
+### 3. Install + bootstrap / 安装并初始化
+
+```bash
+npm install
+npm run setup        # creates .env.local + fresh SESSION_SECRET + per-install admin123 hash
+npm run seed:words   # seeds ~77 blocked words (one-off)
+```
+
+After `npm run setup`, open `.env.local` and confirm:
+
+跑完 `npm run setup` 后,打开 `.env.local` 检查:
+
+- `SESSION_SECRET=` is **NOT** `dev-secret-change-me` or `change-this-...`
+  → 不是默认占位符
+- `ADMIN_PASSWORD_HASH=` is some `<32-hex>:<128-hex>` string
+  → 是 `<32 位 hex>:<128 位 hex>` 的串
+
+### 4. Pick a real admin password / 设置真实管理员密码
+
+```bash
+npm run hash
+# enter password twice (masked), copy the printed ADMIN_PASSWORD_HASH= line
+# 输入两次密码(遮码),复制打印出来的 ADMIN_PASSWORD_HASH= 那一行
+```
+
+Paste the printed line into `.env.local`, replacing the existing `ADMIN_PASSWORD_HASH=...`.
+
+把打印的那一行粘进 `.env.local`,替换现有的 `ADMIN_PASSWORD_HASH=...`。
+
+### 5. Build for production / 生产构建
 
 ```bash
 npm run build
-npm run start:lan            # bind 0.0.0.0
 ```
 
-If deploying on Windows and serving over the LAN, allow inbound TCP 3000 in the firewall (run PowerShell as admin):
+This compiles the Next.js app. Takes 30–60 seconds. Outputs to `.next/`.
 
-Windows 上对局域网开放时,需要在防火墙放行 TCP 3000(以管理员身份运行 PowerShell):
+这一步把 Next.js 编译为生产版本,约 30–60 秒,产物在 `.next/`。
+
+### 6. Open the LAN firewall / 打开局域网防火墙
+
+**Windows** (PowerShell **as Administrator** / 以**管理员身份**运行):
 
 ```powershell
-New-NetFirewallRule -DisplayName "The Daily CWA 3000" `
+New-NetFirewallRule -DisplayName "DailyCWA-3000" `
   -Direction Inbound -LocalPort 3000 -Protocol TCP `
   -Action Allow -Profile Private,Public
 ```
+
+**Linux (ufw):** `sudo ufw allow 3000/tcp`
+
+**Linux (firewalld):** `sudo firewall-cmd --permanent --add-port=3000/tcp && sudo firewall-cmd --reload`
+
+### 7. Start the server / 启动
+
+```bash
+npm run start:lan
+# This binds to 0.0.0.0:3000 so the LAN can see it
+# 绑定到 0.0.0.0:3000,让局域网能访问
+```
+
+You should see / 终端会显示:
+
+```
+▲ Next.js 14.x.x
+- Local:   http://localhost:3000
+- Network: http://0.0.0.0:3000
+✓ Ready in ...
+```
+
+### 8. Find this server's LAN IP / 查这台服务器的局域网 IP
+
+**Windows (PowerShell):**
+
+```powershell
+Get-NetIPAddress -AddressFamily IPv4 |
+  Where-Object { $_.IPAddress -notlike '127.*' -and $_.PrefixOrigin -ne 'WellKnown' } |
+  Select-Object InterfaceAlias, IPAddress
+```
+
+**Linux:** `hostname -I` or `ip -4 addr show`.
+
+You'll get something like `192.168.1.42` or `172.20.10.2`.
+
+会看到类似 `192.168.1.42` 或 `172.20.10.2` 的地址。
+
+### 9. Connect from other devices / 其它设备访问
+
+In any browser on the same LAN: `http://<server-ip>:3000`
+
+同网任何设备浏览器打开 `http://<服务器IP>:3000` 即可访问。
+
+E.g. `http://192.168.1.42:3000`. Use that same IP for the editor sign-in too: `http://192.168.1.42:3000/admin/login`.
+
+例如 `http://192.168.1.42:3000`。编辑登录同样地址 `/admin/login`。
+
+### 10. Keep it running / 让服务持续运行
+
+`npm run start:lan` runs in the foreground and dies when you close the terminal. For long-running deployment:
+
+`npm run start:lan` 是前台进程,关掉终端就停。要让服务长期运行,选一种方式:
+
+- **Windows:** install [pm2](https://pm2.io) globally — `npm install -g pm2` then `pm2 start npm --name daily-cwa -- run start:lan` and `pm2 save`. Survives reboots after `pm2-startup`.
+- **Linux:** same pm2 flow, or write a systemd unit pointing at `/usr/bin/node node_modules/.bin/next start -H 0.0.0.0`.
+
+### Common gotchas / 常见问题
+
+- **Connection refused from other devices:** firewall isn't open. Re-check step 6, and confirm `start:lan` (not `start`) is the running script.
+  其它设备 connection refused: 防火墙没开。看第 6 步,并确认跑的是 `start:lan` 而不是 `start`。
+
+- **Works on phone but not laptop on same WiFi:** the network is "AP isolation" mode (common on public WiFi / iPhone hotspot). Switch to a non-isolating network or a router admin can disable AP isolation.
+  手机能开但电脑不行(同 WiFi): 网络开了 AP 隔离(公共 WiFi / iPhone 热点常见)。换网络或路由器关 AP 隔离。
+
+- **Login says "密码错误" but you used `admin123`:** you set a real password in step 4 — use that one. If you forgot, run `npm run hash` again and pick a new one.
+  登录显示「密码错误」但你用的是 admin123: 第 4 步设了真实密码,要用那个。忘了就再跑一次 `npm run hash` 设新的。
+
+- **Lost track of SESSION_SECRET:** harmless — generate a new one (`npm run setup` won't touch a non-default one, so delete the line first or just edit it). Any open admin sessions on browsers will be invalidated and need to log in again.
+  忘了 `SESSION_SECRET`: 没影响。删掉那行让 `npm run setup` 重生成,或自己手敲一个 48 位随机串。已登录的浏览器会被踢出,重登即可。
 
 ---
 
