@@ -36,8 +36,32 @@ export default function RootLayout({ children }) {
   const subline = t('site.masthead.subline');
   const dateline = formatIssueDate(locale);
 
+  // After the first paint completes (two RAFs to make sure entrance
+  // animations have a chance to actually start), mark <html> as
+  // `.entered`. Every motion rule in globals.css is gated by
+  // `html:not(.entered)`, so subsequent Next.js client-side
+  // navigations don't re-trigger the page entrance animations. A real
+  // refresh re-runs this script and the class is gone again, so the
+  // animations replay on a fresh page load.
+  const enterScript = `
+    (function () {
+      try {
+        var de = document.documentElement;
+        if (de.classList.contains('entered')) return;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            de.classList.add('entered');
+          });
+        });
+      } catch (e) {}
+    })();
+  `;
+
   return (
     <html lang={locale === 'en' ? 'en' : 'zh-CN'}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: enterScript }} />
+      </head>
       <body>
         <LangProvider locale={locale}>
           <ToastProvider>
