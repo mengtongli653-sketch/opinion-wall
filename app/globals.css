@@ -1472,45 +1472,44 @@ html { scroll-behavior: smooth; }
 /* Masthead and subnav: simple opacity fade, no vertical motion
    (the rules above and below act as a frame — moving them would
    feel jittery). */
-.masthead { animation: ink-fade-in-still 520ms cubic-bezier(0.4, 0, 0.2, 1) both; }
-.subnav   { animation: ink-fade-in-still 520ms cubic-bezier(0.4, 0, 0.2, 1) 80ms both; }
+.masthead { animation: ink-fade-in-still 900ms cubic-bezier(0.4, 0, 0.2, 1) both; }
+.subnav   { animation: ink-fade-in-still 900ms cubic-bezier(0.4, 0, 0.2, 1) 200ms both; }
 
 /* Index headings ("Today's Lead" / "Recently Published") fade in
    slightly behind their cards so the eye lands on them first. */
-.index-heading { animation: ink-fade-in 460ms cubic-bezier(0.4, 0, 0.2, 1) 60ms both; }
+.index-heading { animation: ink-fade-in 780ms cubic-bezier(0.4, 0, 0.2, 1) 160ms both; }
 
 /* Article cards / panels: fade in with a 4px settle. The stagger is
-   intentionally light (40ms) — a newspaper page is set, not
-   cascaded. We cap the stagger after the 6th card so long pages
-   don't drag. */
+   intentionally relaxed — a newspaper page is set, not cascaded.
+   We cap the stagger after the 6th card so long pages don't drag. */
 .card,
 .article-detail,
 .letter,
 .discussion-card {
-  animation: ink-fade-in 480ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: ink-fade-in 800ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 .card:nth-child(1)        { animation-delay:   0ms; }
-.card:nth-child(2)        { animation-delay:  40ms; }
-.card:nth-child(3)        { animation-delay:  80ms; }
-.card:nth-child(4)        { animation-delay: 120ms; }
-.card:nth-child(5)        { animation-delay: 160ms; }
-.card:nth-child(6)        { animation-delay: 200ms; }
-.card:nth-child(n+7)      { animation-delay: 240ms; }
+.card:nth-child(2)        { animation-delay:  90ms; }
+.card:nth-child(3)        { animation-delay: 180ms; }
+.card:nth-child(4)        { animation-delay: 270ms; }
+.card:nth-child(5)        { animation-delay: 360ms; }
+.card:nth-child(6)        { animation-delay: 450ms; }
+.card:nth-child(n+7)      { animation-delay: 520ms; }
 .letter:nth-child(1)      { animation-delay:   0ms; }
-.letter:nth-child(2)      { animation-delay:  30ms; }
-.letter:nth-child(3)      { animation-delay:  60ms; }
-.letter:nth-child(4)      { animation-delay:  90ms; }
-.letter:nth-child(n+5)    { animation-delay: 120ms; }
+.letter:nth-child(2)      { animation-delay:  70ms; }
+.letter:nth-child(3)      { animation-delay: 140ms; }
+.letter:nth-child(4)      { animation-delay: 210ms; }
+.letter:nth-child(n+5)    { animation-delay: 280ms; }
 
 /* Within an article detail, the body fades in after the headline so
    the reader's eye is drawn to the title first. */
-.article-detail .article-title  { animation: ink-fade-in 480ms cubic-bezier(0.4, 0, 0.2, 1)  60ms both; }
-.article-detail .byline         { animation: ink-fade-in 480ms cubic-bezier(0.4, 0, 0.2, 1) 120ms both; }
-.article-detail .article-body   { animation: ink-fade-in-still 600ms cubic-bezier(0.4, 0, 0.2, 1) 180ms both; }
+.article-detail .article-title  { animation: ink-fade-in 800ms cubic-bezier(0.4, 0, 0.2, 1) 160ms both; }
+.article-detail .byline         { animation: ink-fade-in 800ms cubic-bezier(0.4, 0, 0.2, 1) 320ms both; }
+.article-detail .article-body   { animation: ink-fade-in-still 1000ms cubic-bezier(0.4, 0, 0.2, 1) 480ms both; }
 
 /* Letters heading and the comment composer fade in last. */
-.letters-section       { animation: ink-fade-in 520ms cubic-bezier(0.4, 0, 0.2, 1) 60ms both; }
-.letters-heading       { animation: ink-fade-in 520ms cubic-bezier(0.4, 0, 0.2, 1) 100ms both; }
+.letters-section       { animation: ink-fade-in 860ms cubic-bezier(0.4, 0, 0.2, 1) 160ms both; }
+.letters-heading       { animation: ink-fade-in 860ms cubic-bezier(0.4, 0, 0.2, 1) 260ms both; }
 
 /* Like / Flag buttons: very subtle press. No pop, no spring — just
    a small acknowledgement. */
@@ -1526,23 +1525,24 @@ button { transition: background .15s ease, border-color .15s ease, opacity .15s 
 button:active { transform: translateY(0.5px); }
 
 /* Card hover already shifts background/border — add a tiny shadow
-   warmth so the lift feels grounded. */
-.card.linkable { transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+   warmth so the lift feels grounded. Slower so the lift reads
+   clearly. */
+.card.linkable { transition: background .3s ease, border-color .3s ease, box-shadow .3s ease, transform .3s ease; }
 .card.linkable:hover { transform: translateY(-1px); }
 
 /* Section-nav: smooth transitions on hover/active. */
-.section-nav a { transition: color .2s ease, border-bottom-color .2s ease; }
+.section-nav a { transition: color .3s ease, border-bottom-color .3s ease; }
 
 /* Modal: existing keyframes already cover this; reinforce the
    backdrop fade for slow connections. */
-.modal-backdrop { animation: fade-in 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+.modal-backdrop { animation: fade-in 320ms cubic-bezier(0.4, 0, 0.2, 1); }
 
 /* Toast: keep existing toast-in, just smooth its curve. */
-.toast { animation: toast-in 240ms cubic-bezier(0.4, 0, 0.2, 1); }
+.toast { animation: toast-in 360ms cubic-bezier(0.4, 0, 0.2, 1); }
 
 /* Hidden-content placeholder reveal: smooth fade when the user
    clicks "Show anyway". */
-.hidden-banner { animation: ink-fade-in 280ms cubic-bezier(0.4, 0, 0.2, 1); }
+.hidden-banner { animation: ink-fade-in 400ms cubic-bezier(0.4, 0, 0.2, 1); }
 
 /* Honor reduced-motion users — strip every animation and transition
    down to an instant. */
