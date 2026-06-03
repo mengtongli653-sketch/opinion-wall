@@ -50,21 +50,13 @@ export default function PostPage({ params }) {
       </div>
 
       <article className="article-detail">
-        {(post.pinned || post.featured) && (
-          <div className="badges">
-            {post.pinned ? <span className="badge pin">{t('post.badge.pinned')}</span> : null}
-            {post.featured ? <span className="badge feat">{t('post.badge.featured')}</span> : null}
-          </div>
-        )}
-
         {postVis === 'hidden' ? (
           <HiddenContent>
-            <ArticleDetail t={t} post={post} section={section}liked={postLiked} reported={postReported} />
+            <ArticleDetail t={t} post={post} section={section} liked={postLiked} reported={postReported} />
           </HiddenContent>
         ) : (
-          <ArticleDetail t={t} post={post} section={section}liked={postLiked} reported={postReported} />
+          <ArticleDetail t={t} post={post} section={section} liked={postLiked} reported={postReported} />
         )}
-
         {admin && (
           <div className="card-menu">
             <AdminPostControls
@@ -74,31 +66,32 @@ export default function PostPage({ params }) {
         )}
       </article>
 
-      <section className="letters-section" id="comments">
-        <h2 className="letters-heading">{t('comment.heading')}</h2>
-        <div className="letters-sub">
-          {comments.length > 0
-            ? `${comments.length} ${t('comment.heading')}`
-            : t('comment.empty')}
+      <section className="comments-section" id="comments">
+        <div className="comments-heading">
+          <span>{t('comment.heading')}</span>
+          <span className="count">{comments.length}</span>
         </div>
+
+        {comments.length === 0 && (
+          <div className="muted" style={{ padding: '12px 0' }}>{t('comment.empty')}</div>
+        )}
 
         {comments.map((c) => {
           const vis = effectiveVisibility(c, { forAdmin: admin });
           const body = (
             <>
-              <div className="letter-body">{c.content}</div>
-              <div className="letter-sig">
-                {t('post.byline.prefix')}{' '}
+              <div className="comment-meta">
                 {c.display_name ? (
-                  <span className="author named">{c.display_name}</span>
+                  <span className="named">{c.display_name}</span>
                 ) : (
-                  <span className="author">{c.author_tag}</span>
+                  <span className="anon">{c.author_tag}</span>
                 )}
-                <span style={{ margin: '0 6px' }}>·</span>
+                <span className="sep">·</span>
                 <span title={formatFull(c.created_at)}>{formatRelative(c.created_at, t)}</span>
-                {admin && <span style={{ marginLeft: 8 }}><AdminCommentDelete id={c.id} /></span>}
+                {admin && <span style={{ marginLeft: 4 }}><AdminCommentDelete id={c.id} /></span>}
               </div>
-              <div className="letter-actions">
+              <div className="comment-body">{c.content}</div>
+              <div className="comment-actions">
                 <LikeReportBar
                   target="comment"
                   id={c.id}
@@ -112,7 +105,7 @@ export default function PostPage({ params }) {
             </>
           );
           return (
-            <div key={c.id} className="letter">
+            <div key={c.id} className="comment-item">
               {vis === 'hidden' ? <HiddenContent>{body}</HiddenContent> : body}
             </div>
           );
@@ -127,30 +120,29 @@ export default function PostPage({ params }) {
 function ArticleDetail({ t, post, section, liked, reported }) {
   return (
     <>
-      {section && (
-        <div className="section-label">
-          <a href={`/?tag=${section.id}`}>{section.name}</a>
-        </div>
-      )}
+      <div className="article-detail-meta">
+        {section && (
+          <a className="chip-status info" href={`/?tag=${section.id}`}>{section.name}</a>
+        )}
+        {post.pinned ? <span className="chip-status warn">{t('post.badge.pinned')}</span> : null}
+        {post.featured ? <span className="chip-status info">{t('post.badge.featured')}</span> : null}
+      </div>
 
-      <h1 className="article-title">{post.title}</h1>
+      <h1 className="article-detail-title">{post.title}</h1>
 
-      <div className="byline">
-        <span className="by">
-          {t('post.byline.prefix')}{' '}
-          {post.display_name ? (
-            <span className="author named">{post.display_name}</span>
-          ) : (
-            <span className="author">{post.author_tag}</span>
-          )}
-        </span>
+      <div className="article-detail-byline">
+        {post.display_name ? (
+          <span className="named">{post.display_name}</span>
+        ) : (
+          <span className="anon">{post.author_tag}</span>
+        )}
         <span className="sep">·</span>
         <span title={formatFull(post.created_at)}>{formatRelative(post.created_at, t)}</span>
       </div>
 
-      <div className="article-body">{post.content}</div>
+      <div className="article-detail-body">{post.content}</div>
 
-      <div className="article-actions">
+      <div className="article-detail-actions">
         <LikeReportBar
           target="post"
           id={post.id}

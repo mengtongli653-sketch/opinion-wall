@@ -40,15 +40,10 @@ export default function TagPicker({ value, onChange }) {
 
   return (
     <div>
-      <div className="muted" style={{ fontSize: 12.5, marginBottom: 6 }}>
-        {t('compose.tagLabel')}
-      </div>
+      <div className="field-label">{t('compose.tagLabel')}</div>
 
       {loaded && sections.length === 0 && (
-        <div
-          className="muted"
-          style={{ fontSize: 12.5, fontStyle: 'italic', marginBottom: 8 }}
-        >
+        <div className="muted" style={{ fontSize: 12.5, marginBottom: 8 }}>
           {t('section.empty')}
         </div>
       )}
@@ -81,12 +76,7 @@ export default function TagPicker({ value, onChange }) {
           style={{ flex: 1 }}
         />
         {isNewName && (
-          <span
-            className="badge"
-            style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}
-          >
-            {t('section.willCreate')}
-          </span>
+          <span className="chip-status info">{t('section.willCreate')}</span>
         )}
       </div>
     </div>

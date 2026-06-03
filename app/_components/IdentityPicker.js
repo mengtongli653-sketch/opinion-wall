@@ -8,7 +8,7 @@ export default function IdentityPicker({ named, displayName, onChange }) {
   const t = useT();
   return (
     <div className="identity-picker">
-      <div className="identity-label">{t('identity.label')}</div>
+      <div className="field-label">{t('identity.label')}</div>
       <div className="identity-segmented" role="radiogroup" aria-label={t('identity.label')}>
         <button
           type="button"
@@ -32,7 +32,6 @@ export default function IdentityPicker({ named, displayName, onChange }) {
       {named && (
         <input
           type="text"
-          className="identity-name-input"
           placeholder={t('identity.namePlaceholder')}
           value={displayName}
           maxLength={30}
