@@ -7,7 +7,7 @@ export async function POST(request) {
   const body = await request.json().catch(() => ({}));
   const password = String(body.password || '');
 
-  if (!verifyPassword(password)) {
+  if (!(await verifyPassword(password))) {
     return NextResponse.json({ error: '密码错误' }, { status: 401 });
   }
 

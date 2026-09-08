@@ -1,14 +1,21 @@
 import { NextResponse } from 'next/server';
-import { createReport, getComment, hasReported } from '@/lib/db';
-import { getOrCreateAnonId } from '@/lib/auth';
+import { createReport, getComment, getPost, hasReported } from '@/lib/db';
+import { getOrCreateAnonId, isAdmin } from '@/lib/auth';
+import { canReadPost } from '@/lib/post-access.mjs';
 
 export const dynamic = 'force-dynamic';
 
 const VALID_CATEGORIES = ['spam', 'attack', 'illegal', 'misinfo', 'nsfw', 'other'];
 
 export async function POST(req, { params }) {
-  const id = Number(params.id);
-  if (!getComment(id)) return NextResponse.json({ error: 'not found' }, { status: 404 });
+  const id = Number((await params).id);
+  const comment = await getComment(id);
+  if (!comment) return NextResponse.json({ error: 'not found' }, { status: 404 });
+  const post = await getPost(comment.post_id);
+  const forAdmin = await isAdmin();
+  if (!canReadPost(post, { forAdmin })) {
+    return NextResponse.json({ error: 'not found' }, { status: 404 });
+  }
 
   const body = await req.json().catch(() => ({}));
   const category = VALID_CATEGORIES.includes(body.category) ? body.category : 'other';
@@ -17,11 +24,11 @@ export async function POST(req, { params }) {
   if (reason.length > 200) return NextResponse.json({ error: 'reason_too_long' }, { status: 400 });
 
   const carrier = NextResponse.json({ ok: true });
-  const anonId = getOrCreateAnonId(carrier);
-  if (hasReported(anonId, 'comment', id)) {
+  const anonId = await getOrCreateAnonId(carrier);
+  if (await hasReported(anonId, 'comment', id)) {
     return NextResponse.json({ error: 'already_reported' }, { status: 409, headers: carrier.headers });
   }
-  const rec = createReport({ anon_id: anonId, target_type: 'comment', target_id: id, category, reason });
-  if (!rec) return NextResponse.json({ error: 'failed' }, { status: 500, headers: carrier.headers });
+  const rec = await createReport({ anon_id: anonId, target_type: 'comment', target_id: id, category, reason, forAdmin });
+  if (!rec) return NextResponse.json({ error: 'not found' }, { status: 404, headers: carrier.headers });
   return NextResponse.json({ ok: true }, { headers: carrier.headers });
 }

@@ -5,11 +5,11 @@ import { isAdmin } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
-  if (!isAdmin()) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: '需要编辑权限' }, { status: 403 });
   }
   const body = await request.json().catch(() => ({}));
-  const entry = createEditorContact({
+  const entry = await createEditorContact({
     name: body.name,
     role: body.role,
     contact_label: body.contact_label,

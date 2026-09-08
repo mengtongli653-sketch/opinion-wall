@@ -5,5 +5,5 @@ export const dynamic = 'force-dynamic';
 
 // Public read of the editorial contact list — powers the /letters page.
 export async function GET() {
-  return NextResponse.json({ contacts: listEditorContacts() });
+  return NextResponse.json({ contacts: await listEditorContacts() });
 }

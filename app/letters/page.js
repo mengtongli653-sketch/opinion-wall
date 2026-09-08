@@ -4,10 +4,10 @@ import { readLocaleFromCookies, makeT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 
-export default function LettersPage() {
-  const locale = readLocaleFromCookies(cookies());
+export default async function LettersPage() {
+  const locale = readLocaleFromCookies(await cookies());
   const t = makeT(locale);
-  const contacts = listEditorContacts();
+  const contacts = await listEditorContacts();
 
   return (
     <>

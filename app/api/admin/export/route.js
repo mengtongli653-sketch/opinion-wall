@@ -7,10 +7,10 @@ import { buildExportWorkbook } from '@/lib/export';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  if (!isAdmin()) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
-  const locale = readLocaleFromCookies(cookies());
+  const locale = readLocaleFromCookies(await cookies());
   const wb = await buildExportWorkbook({ locale });
   const buffer = await wb.xlsx.writeBuffer();
 

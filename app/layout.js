@@ -7,8 +7,8 @@ import { ToastProvider } from './_components/Toast';
 import { LangProvider } from './_components/LangProvider';
 import LangSwitch from './_components/LangSwitch';
 
-export function generateMetadata() {
-  const locale = readLocaleFromCookies(cookies());
+export async function generateMetadata() {
+  const locale = readLocaleFromCookies(await cookies());
   const dict = getDict(locale);
   return {
     title: dict['site.title'] || BRAND,
@@ -24,8 +24,8 @@ function formatIssueDate(locale) {
     : now.toLocaleDateString('en-US', opts);
 }
 
-export default function RootLayout({ children }) {
-  const cookieStore = cookies();
+export default async function RootLayout({ children }) {
+  const cookieStore = await cookies();
   const adminToken = cookieStore.get(COOKIES.SESSION_COOKIE)?.value;
   const admin = verifyAdminToken(adminToken);
   const locale = readLocaleFromCookies(cookieStore);

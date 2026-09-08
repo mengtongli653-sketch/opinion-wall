@@ -11,18 +11,19 @@ import HiddenContent from '../_components/HiddenContent';
 
 export const dynamic = 'force-dynamic';
 
-export default function Forum() {
-  const cookieStore = cookies();
+export default async function Forum() {
+  const cookieStore = await cookies();
   const locale = readLocaleFromCookies(cookieStore);
   const t = makeT(locale);
 
-  const posts = listPosts({ kind: 'discussion', status: 'published' });
+  const posts = await listPosts({ kind: 'discussion', status: 'published' });
 
   const admin = verifyAdminToken(cookieStore.get(COOKIES.SESSION_COOKIE)?.value);
   const anonId = cookieStore.get(COOKIES.ANON_COOKIE)?.value || null;
   const ids = posts.map((p) => p.id);
-  const likedSet = anonId ? likedIds(anonId, 'post', ids) : new Set();
-  const reportedSet = anonId ? reportedIds(anonId, 'post', ids) : new Set();
+  const [likedSet, reportedSet] = anonId
+    ? await Promise.all([likedIds(anonId, 'post', ids), reportedIds(anonId, 'post', ids)])
+    : [new Set(), new Set()];
 
   return (
     <>

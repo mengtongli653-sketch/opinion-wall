@@ -5,11 +5,11 @@ import { isAdmin } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 export async function POST(_req, { params }) {
-  if (!isAdmin()) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: '需要编辑权限' }, { status: 403 });
   }
-  const id = Number(params.id);
-  const updated = publishPost(id);
+  const id = Number((await params).id);
+  const updated = await publishPost(id);
   if (!updated) {
     return NextResponse.json({ error: '文章不存在' }, { status: 404 });
   }

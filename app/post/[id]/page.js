@@ -5,6 +5,7 @@ import { verifyAdminToken, COOKIES } from '@/lib/auth';
 import { formatFull, formatRelative } from '@/lib/time';
 import { readLocaleFromCookies, makeT } from '@/lib/i18n';
 import { effectiveVisibility } from '@/lib/moderation';
+import { canReadPost } from '@/lib/post-access.mjs';
 import CommentForm from '@/app/_components/CommentForm';
 import AdminPostControls from '@/app/_components/AdminPostControls';
 import AdminCommentDelete from '@/app/_components/AdminCommentDelete';
@@ -13,26 +14,31 @@ import HiddenContent from '@/app/_components/HiddenContent';
 
 export const dynamic = 'force-dynamic';
 
-export default function PostPage({ params }) {
-  const id = Number(params.id);
-  const post = getPost(id);
-  if (!post) notFound();
-  const comments = listComments(id);
-  const cookieStore = cookies();
+export default async function PostPage({ params }) {
+  const id = Number((await params).id);
+  const post = await getPost(id);
+  const cookieStore = await cookies();
   const locale = readLocaleFromCookies(cookieStore);
   const t = makeT(locale);
   const admin = verifyAdminToken(cookieStore.get(COOKIES.SESSION_COOKIE)?.value);
+  if (!canReadPost(post, { forAdmin: admin })) notFound();
+  const comments = await listComments(id);
   const anonId = cookieStore.get(COOKIES.ANON_COOKIE)?.value || null;
 
-  const postLiked = anonId ? likedIds(anonId, 'post', [id]).has(id) : false;
-  const postReported = anonId ? reportedIds(anonId, 'post', [id]).has(id) : false;
-
   const commentIds = comments.map((c) => c.id);
-  const commentLiked = anonId ? likedIds(anonId, 'comment', commentIds) : new Set();
-  const commentReported = anonId ? reportedIds(anonId, 'comment', commentIds) : new Set();
+  const [postLikedIds, postReportedIds, commentLiked, commentReported] = anonId
+    ? await Promise.all([
+      likedIds(anonId, 'post', [id]),
+      reportedIds(anonId, 'post', [id]),
+      likedIds(anonId, 'comment', commentIds),
+      reportedIds(anonId, 'comment', commentIds),
+    ])
+    : [new Set(), new Set(), new Set(), new Set()];
+  const postLiked = postLikedIds.has(id);
+  const postReported = postReportedIds.has(id);
 
   const postVis = effectiveVisibility(post, { forAdmin: admin });
-  const section = post.tag ? getSection(post.tag) : null;
+  const section = post.tag ? await getSection(post.tag) : null;
 
   return (
     <>

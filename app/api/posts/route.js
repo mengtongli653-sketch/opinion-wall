@@ -15,7 +15,7 @@ function normalizeDisplayName(raw) {
 }
 
 export async function GET() {
-  return NextResponse.json({ posts: listPosts() });
+  return NextResponse.json({ posts: await listPosts() });
 }
 
 export async function POST(request) {
@@ -38,19 +38,19 @@ export async function POST(request) {
 
   // Block-word filter covers headline + body + display name + new section
   // name so users can't sneak through by stashing slurs in a section title.
-  const hit = containsBlockedWord([title, content, display_name || '', tagName].join('\n'));
+  const hit = await containsBlockedWord([title, content, display_name || '', tagName].join('\n'));
   if (hit) {
     return NextResponse.json({ error: `内容包含屏蔽词：${hit}` }, { status: 400 });
   }
 
   // Find-or-create the section by name (case-insensitive). Discussions
   // ignore sections entirely.
-  const section = kind === 'article' && tagName ? getOrCreateSection(tagName) : null;
+  const section = kind === 'article' && tagName ? await getOrCreateSection(tagName) : null;
 
   const response = NextResponse.json({ ok: true });
-  const anonId = getOrCreateAnonId(response);
-  const status = kind === 'discussion' || isAdmin() ? 'published' : 'pending';
-  const post = createPost({
+  const anonId = await getOrCreateAnonId(response);
+  const status = kind === 'discussion' || await isAdmin() ? 'published' : 'pending';
+  const post = await createPost({
     title,
     content,
     author_tag: `匿名#${anonId}`,

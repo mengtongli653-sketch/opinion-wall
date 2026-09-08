@@ -1,8 +1,29 @@
-# The Daily CWA · 《每日世华》
+# CWA Times · 《世华时报》
 
-A student-run **campus news and opinion** site for the CWA community — editor-reviewed articles on the front page, a casual Free Discussion side-channel, anonymous-or-named bylines, user-created sections, a public Reader Letters / editor-contacts page, and per-article PDF download. Built with Next.js 14 (App Router), no database, no signup, no tracking.
+## Vercel deployment / Vercel 部署
 
-《每日世华》是 CWA 同学自主运营的**校园新闻与观点**站点 —— 头版刊登经编辑审核的文章,自由讨论区即时发言,作者可选匿名或署名,版面由读者投稿时自建,网站底部还有一个公开的「读者来信 · 编辑联系方式」页面,文章可一键下载 PDF。基于 Next.js 14,无数据库、无注册、无追踪。
+The hosted version uses Supabase for persistent posts, comments, and moderation data. Local development still uses `data.json` when no Supabase variables are configured. The application runs on Next.js 15 and React 19.
+
+线上版本使用 Supabase 持久保存文章、评论和审核数据；未配置 Supabase 时，本机开发继续使用 `data.json`。当前运行版本为 Next.js 15 和 React 19。
+
+1. In the existing Supabase project's SQL Editor, run `scripts/supabase-migration.sql`. It creates an isolated state table and an atomic save function. Existing legacy tables remain untouched; old messages are imported into Free Discussion on first initialization. Re-running the script does not overwrite initialized content.
+2. Keep `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Vercel's environment variables. The service-role key must stay server-only. Never add it to Git or prefix it with `NEXT_PUBLIC_`.
+3. Existing deployments can keep their editor password through the `check_admin_password` RPC. A separately configured `ADMIN_PASSWORD_HASH` takes precedence. A custom `SESSION_SECRET` is supported; otherwise the server derives a separate signing key from its service credential.
+4. Connect Vercel to this repository, with the project root at the repository root, the Next.js preset, and `main` as the production branch. Build command: `npm run build`.
+5. Verify a preview before promotion: home page, free discussion, a new submission, editor login, moderation, and a second request that reads the saved content.
+6. Run `scripts/supabase-sync-legacy.sql` immediately before and after switching production. It only imports previously unseen legacy message IDs, without overwriting new edits or restoring deleted imported messages. Old hidden messages remain private until an editor explicitly shows them.
+
+部署前在原 Supabase 项目执行迁移脚本，并保留 Vercel 中现有的数据库变量。脚本只新增独立存储，不修改或删除旧表；旧留言首次导入自由讨论区。迁移完成后再切换正式域名，并验证投稿和后台审核。
+
+Concurrent saves use a database version check with bounded retries. Storage failures are returned as errors instead of reporting unsaved content as successful. Vercel never falls back to a local file.
+
+Run focused storage checks with `node --test tests/db-storage.test.mjs`, then `npm run build`.
+
+---
+
+A student-run **campus news and opinion** site for the CWA community — editor-reviewed articles on the front page, a casual Free Discussion side-channel, anonymous-or-named bylines, user-created sections, a public Reader Letters / editor-contacts page, and per-article PDF download. Built with Next.js 15 (App Router), Supabase for hosted storage, no signup, no tracking.
+
+《世华时报》是 CWA 同学自主运营的**校园新闻与观点**站点 —— 头版刊登经编辑审核的文章,自由讨论区即时发言,作者可选匿名或署名,版面由读者投稿时自建,网站底部还有一个公开的「读者来信 · 编辑联系方式」页面,文章可一键下载 PDF。基于 Next.js 15，线上使用 Supabase，无注册、无追踪。
 
 ---
 

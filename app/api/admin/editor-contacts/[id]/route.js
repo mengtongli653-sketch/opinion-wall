@@ -5,12 +5,12 @@ import { isAdmin } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 export async function PATCH(req, { params }) {
-  if (!isAdmin()) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: '需要编辑权限' }, { status: 403 });
   }
-  const id = Number(params.id);
+  const id = Number((await params).id);
   const body = await req.json().catch(() => ({}));
-  const updated = updateEditorContact(id, body);
+  const updated = await updateEditorContact(id, body);
   if (!updated) {
     return NextResponse.json({ error: '联系人不存在' }, { status: 404 });
   }
@@ -18,10 +18,10 @@ export async function PATCH(req, { params }) {
 }
 
 export async function DELETE(_req, { params }) {
-  if (!isAdmin()) {
+  if (!(await isAdmin())) {
     return NextResponse.json({ error: '需要编辑权限' }, { status: 403 });
   }
-  const id = Number(params.id);
-  deleteEditorContact(id);
+  const id = Number((await params).id);
+  await deleteEditorContact(id);
   return NextResponse.json({ ok: true });
 }

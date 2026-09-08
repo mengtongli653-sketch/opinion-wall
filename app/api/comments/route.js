@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getPost, createComment } from '@/lib/db';
-import { getOrCreateAnonId } from '@/lib/auth';
+import { getOrCreateAnonId, isAdmin } from '@/lib/auth';
 import { containsBlockedWord } from '@/lib/filter';
+import { canReadPost } from '@/lib/post-access.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,22 +27,27 @@ export async function POST(request) {
     return NextResponse.json({ error: '评论不超过 1000 字' }, { status: 400 });
   }
 
-  const post = getPost(postId);
-  if (!post) return NextResponse.json({ error: '帖子不存在' }, { status: 404 });
+  const post = await getPost(postId);
+  const forAdmin = await isAdmin();
+  if (!canReadPost(post, { forAdmin })) {
+    return NextResponse.json({ error: '帖子不存在' }, { status: 404 });
+  }
 
-  const hit = containsBlockedWord([content, display_name || ''].join('\n'));
+  const hit = await containsBlockedWord([content, display_name || ''].join('\n'));
   if (hit) {
     return NextResponse.json({ error: `内容包含屏蔽词：${hit}` }, { status: 400 });
   }
 
   const response = NextResponse.json({ ok: true });
-  const anonId = getOrCreateAnonId(response);
-  const c = createComment({
+  const anonId = await getOrCreateAnonId(response);
+  const c = await createComment({
     post_id: postId,
     content,
     author_tag: `匿名#${anonId}`,
     display_name,
+    forAdmin,
   });
+  if (!c) return NextResponse.json({ error: '帖子不存在' }, { status: 404 });
 
   return NextResponse.json({ ok: true, id: c.id }, { headers: response.headers });
 }

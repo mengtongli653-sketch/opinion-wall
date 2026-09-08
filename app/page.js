@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
-import { listPosts, likedIds, reportedIds, listSections, activeSectionIds, getSection } from '@/lib/db';
-import { verifyAdminToken, COOKIES, getOrCreateAnonId } from '@/lib/auth';
+import { listPosts, likedIds, reportedIds, listSections, activeSectionIds } from '@/lib/db';
+import { verifyAdminToken, COOKIES } from '@/lib/auth';
 import { formatFull, formatRelative } from '@/lib/time';
 import { readLocaleFromCookies, makeT } from '@/lib/i18n';
 import { normalizeTag } from '@/lib/tags';
@@ -13,31 +13,36 @@ import TagFilter from './_components/TagFilter';
 
 export const dynamic = 'force-dynamic';
 
-export default function Home({ searchParams }) {
-  const cookieStore = cookies();
+export default async function Home({ searchParams }) {
+  const cookieStore = await cookies();
   const locale = readLocaleFromCookies(cookieStore);
   const t = makeT(locale);
 
-  const activeTag = normalizeTag(searchParams?.tag);
-  const posts = listPosts({ tag: activeTag });
+  const activeTag = normalizeTag((await searchParams)?.tag);
+  const [posts, activeIds, sections] = await Promise.all([
+    listPosts({ tag: activeTag }),
+    activeSectionIds(),
+    listSections(),
+  ]);
 
   // Only render the section filter for sections that actually have
   // published articles — keeps the bar from showing dead tabs.
-  const activeIds = activeSectionIds();
-  const visibleSections = listSections().filter((s) => activeIds.has(s.id));
+  const visibleSections = sections.filter((s) => activeIds.has(s.id));
+  const sectionById = new Map(sections.map((s) => [s.id, s]));
 
   const admin = verifyAdminToken(cookieStore.get(COOKIES.SESSION_COOKIE)?.value);
   const anonId = cookieStore.get(COOKIES.ANON_COOKIE)?.value || null;
   const ids = posts.map((p) => p.id);
-  const likedSet = anonId ? likedIds(anonId, 'post', ids) : new Set();
-  const reportedSet = anonId ? reportedIds(anonId, 'post', ids) : new Set();
+  const [likedSet, reportedSet] = anonId
+    ? await Promise.all([likedIds(anonId, 'post', ids), reportedIds(anonId, 'post', ids)])
+    : [new Set(), new Set()];
 
   const leadPost = posts[0] || null;
   const restPosts = posts.slice(1);
 
   const renderArticle = (p, { lead = false } = {}) => {
     const visibility = effectiveVisibility(p, { forAdmin: admin });
-    const section = p.tag ? getSection(p.tag) : null;
+    const section = p.tag ? sectionById.get(p.tag) : null;
     const liked = likedSet.has(p.id);
     const reported = reportedSet.has(p.id);
     return (

@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getPost, getSection } from '@/lib/db';
+import { isAdmin } from '@/lib/auth';
+import { canReadPost } from '@/lib/post-access.mjs';
 import { readLocaleFromCookies, makeT } from '@/lib/i18n';
 import PrintTrigger, { PrintAgainButton } from '@/app/_components/PrintTrigger';
 
@@ -14,14 +16,14 @@ function formatPrintDate(locale, ts) {
     : d.toLocaleDateString('en-US', opts);
 }
 
-export default function PrintPostPage({ params }) {
-  const id = Number(params.id);
-  const post = getPost(id);
-  if (!post) notFound();
-  const locale = readLocaleFromCookies(cookies());
+export default async function PrintPostPage({ params }) {
+  const id = Number((await params).id);
+  const post = await getPost(id);
+  if (!canReadPost(post, { forAdmin: await isAdmin() })) notFound();
+  const locale = readLocaleFromCookies(await cookies());
   const t = makeT(locale);
   const brand = t('site.brand');
-  const section = post.tag ? getSection(post.tag) : null;
+  const section = post.tag ? await getSection(post.tag) : null;
   const sectionLabel = section ? section.name : null;
   const date = formatPrintDate(locale, post.created_at);
   const isNamed = !!post.display_name;

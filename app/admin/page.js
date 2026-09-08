@@ -10,7 +10,7 @@ import {
   countPendingReports,
   listPendingPosts,
   countPendingPosts,
-  getSection,
+  listSections,
   listEditorContacts,
 } from '@/lib/db';
 import { formatFull, formatRelative } from '@/lib/time';
@@ -42,27 +42,37 @@ function Stat({ label, value, accent }) {
   );
 }
 
-export default function AdminHome() {
-  if (!isAdmin()) redirect('/admin/login');
+export default async function AdminHome() {
+  if (!(await isAdmin())) redirect('/admin/login');
 
-  const locale = readLocaleFromCookies(cookies());
+  const locale = readLocaleFromCookies(await cookies());
   const t = makeT(locale);
-  const posts = recentPosts(50);
+  const [posts, pendingPosts, sections, words, contacts, reports,
+    postCount, commentCount, pendingReportCount, pendingPostCount] = await Promise.all([
+    recentPosts(50),
+    listPendingPosts(),
+    listSections(),
+    getBlockedWords(),
+    listEditorContacts(),
+    listReports({ resolved: false }),
+    countPosts(),
+    countComments(),
+    countPendingReports(),
+    countPendingPosts(),
+  ]);
+  const sectionById = new Map(sections.map((section) => [section.id, section]));
   // Server-resolve each pending submission's section name so the client
   // panel doesn't have to fetch /api/sections itself.
-  const pending = listPendingPosts().map((p) => ({
+  const pending = pendingPosts.map((p) => ({
     ...p,
-    section_name: p.tag ? (getSection(p.tag)?.name ?? null) : null,
+    section_name: p.tag ? (sectionById.get(p.tag)?.name ?? null) : null,
   }));
-  const words = getBlockedWords();
-  const contacts = listEditorContacts();
-  const reports = listReports({ resolved: false });
   const stats = {
-    posts: countPosts(),
-    comments: countComments(),
+    posts: postCount,
+    comments: commentCount,
     words: words.length,
-    pendingReports: countPendingReports(),
-    pendingSubmissions: countPendingPosts(),
+    pendingReports: pendingReportCount,
+    pendingSubmissions: pendingPostCount,
   };
 
   return (
