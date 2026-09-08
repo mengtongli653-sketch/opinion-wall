@@ -33,7 +33,6 @@ export default function RootLayout({ children }) {
 
   const brand = t('site.brand');
   const tagline = t('site.tagline');
-  const subline = t('site.masthead.subline');
   const dateline = formatIssueDate(locale);
 
   // After the first paint completes (two RAFs to make sure entrance
@@ -73,7 +72,6 @@ export default function RootLayout({ children }) {
               <div className="masthead-issue">
                 <span>{dateline}</span>
               </div>
-              <div className="masthead-subline">{subline}</div>
             </header>
 
             <nav className="subnav" aria-label="primary">
@@ -97,7 +95,6 @@ export default function RootLayout({ children }) {
                 <span className="name">{brand}</span>
                 {brand !== BRAND && <span className="dim"> · {BRAND}</span>}
               </div>
-              <div className="dim">{subline}</div>
               <div className="colophon-links">
                 <a href="/letters">{t('letters.navLink')}</a>
               </div>
